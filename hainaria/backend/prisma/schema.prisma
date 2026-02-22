@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  avatars      UserAvatar[]
+  looks        TryOnLook[]
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  title     String
+  price     Float
+  brand     String   @default("")
+  category  String
+  size      String
+  condition String
+  tag           String              @default("Second-hand")
+  stock         Int                 @default(1)
+  imageUrl      String
+  isTryOnCutout Boolean             @default(false)
+  createdAt     DateTime            @default(now())
+  tryOnConfig   ProductTryOnConfig?
+}
+
+enum GarmentType {
+  TOP
+  BOTTOM
+  OUTER
+  DRESS
+  SHOES
+  ACCESSORY
+}
+
+model UserAvatar {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  originalUrl String
+  cutoutUrl   String
+  width       Int?
+  height      Int?
+  createdAt   DateTime    @default(now())
+  looks       TryOnLook[]
+}
+
+model ProductTryOnConfig {
+  id          String      @id @default(cuid())
+  productId   String      @unique
+  product     Product     @relation(fields: [productId], references: [id])
+  garmentType GarmentType
+  cutoutUrl   String?
+  anchorX     Float
+  anchorY     Float
+  scale       Float
+  rotationDeg Float       @default(0)
+}
+
+model TryOnLook {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  avatarId   String
+  avatar     UserAvatar @relation(fields: [avatarId], references: [id])
+  name       String?
+  sceneJson  Json
+  previewUrl String?
+  createdAt  DateTime   @default(now())
+}

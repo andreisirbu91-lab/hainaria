@@ -1,0 +1,325 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* ─── Design Tokens ─────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg: #FAFAF8;
+  /* warm off-white page background */
+  --surface: #FFFFFF;
+  /* card surfaces */
+  --surface-2: #F5F3EF;
+  /* warm beige for highlights */
+
+  /* Text */
+  --text: #141414;
+  /* near-black primary text */
+  --muted: #888880;
+  /* secondary / placeholder */
+
+  /* Borders */
+  --border: #E6E3DC;
+  /* warm light border */
+  --border-2: #C8C4BB;
+  /* slightly darker border */
+
+  /* Accent */
+  --accent: #C9B99A;
+  /* warm beige accent */
+  --accent-2: #9E8C74;
+  /* darker beige / hover accent */
+
+  /* Feedback */
+  --success: #2D7A4F;
+  --error: #B94040;
+  --warning: #B86B14;
+
+  /* Radii */
+  --radius-sm: 2px;
+  --radius: 4px;
+  --radius-lg: 8px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(20, 20, 20, .06), 0 1px 2px rgba(20, 20, 20, .04);
+  --shadow: 0 2px 8px rgba(20, 20, 20, .08), 0 1px 3px rgba(20, 20, 20, .05);
+  --shadow-lg: 0 8px 24px rgba(20, 20, 20, .10), 0 3px 8px rgba(20, 20, 20, .06);
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply font-sans;
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  /* Remove default link blue everywhere */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Consistent focus ring */
+  :focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 2px;
+  }
+
+  /* Typography scale */
+  h1 {
+    @apply text-4xl font-bold leading-tight tracking-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-bold leading-snug tracking-tight;
+  }
+
+  h3 {
+    @apply text-lg font-semibold leading-snug;
+  }
+
+  h4 {
+    @apply text-base font-semibold;
+  }
+
+  /* Ensure images never overflow */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Smooth scroll */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+/* ─── Component Layer ────────────────────────────────────────────────── */
+@layer components {
+
+  /* ---- Buttons ---- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-150 select-none disabled:opacity-40 disabled:cursor-not-allowed;
+    border-radius: var(--radius-sm);
+  }
+
+  .btn-primary {
+    @apply bg-[var(--text)] text-[var(--bg)] px-6 py-3.5 hover:bg-[#2a2a2a] active:scale-[0.99];
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3.5 border border-[var(--border-2)] text-[var(--text)] hover:border-[var(--text)] hover:bg-[var(--surface-2)] active:scale-[0.99];
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2.5 text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] active:scale-[0.99];
+  }
+
+  .btn-outline {
+    @apply px-6 py-3.5 border border-[var(--text)] text-[var(--text)] hover:bg-[var(--text)] hover:text-[var(--bg)] active:scale-[0.99];
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-[10px];
+  }
+
+  .btn-lg {
+    @apply px-8 py-4 text-xs;
+  }
+
+  /* ---- Inputs ---- */
+  .input-base {
+    @apply w-full bg-[var(--surface)] text-[var(--text)] border border-[var(--border)] rounded-[var(--radius)] px-4 py-3 text-sm placeholder-[var(--muted)] transition-colors duration-150 focus:outline-none focus:border-[var(--border-2)] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-base:focus-visible {
+    outline: 2px solid var(--accent-2);
+    outline-offset: 0px;
+    border-color: transparent;
+  }
+
+  /* ---- Cards ---- */
+  .card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-flat {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  /* ---- Product card ---- */
+  .product-card {
+    @apply flex flex-col cursor-pointer;
+  }
+
+  .product-card-img {
+    @apply overflow-hidden bg-[var(--surface-2)] relative;
+    border: 1px solid var(--border);
+    aspect-ratio: 3 / 4;
+  }
+
+  .product-card-img img {
+    @apply w-full h-full object-cover transition-transform duration-500;
+  }
+
+  .product-card:hover .product-card-img img {
+    transform: scale(1.04);
+  }
+
+  /* ---- Badges ---- */
+  .badge {
+    @apply inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5;
+  }
+
+  .badge-dark {
+    @apply bg-[var(--text)] text-[var(--bg)];
+  }
+
+  .badge-light {
+    @apply bg-[var(--surface)] text-[var(--text)] border border-[var(--border)];
+  }
+
+  .badge-muted {
+    @apply bg-[var(--surface-2)] text-[var(--muted)];
+  }
+
+  .badge-success {
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+  }
+
+  .badge-warn {
+    @apply bg-amber-50 text-amber-700 border border-amber-200;
+  }
+
+  /* ---- Divider ---- */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background-color: var(--border);
+    margin: 0;
+  }
+
+  /* ---- Skeleton ---- */
+  .skeleton {
+    @apply animate-pulse rounded-[var(--radius)];
+    background: linear-gradient(90deg,
+        var(--surface-2) 25%,
+        var(--border) 50%,
+        var(--surface-2) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* ---- Page header ---- */
+  .page-header {
+    @apply border-b pb-8 mb-10;
+    border-color: var(--border);
+  }
+
+  .page-header-title {
+    @apply text-3xl font-bold uppercase tracking-widest;
+    color: var(--text);
+  }
+
+  .page-header-subtitle {
+    @apply text-xs uppercase tracking-[0.3em] mt-1;
+    color: var(--muted);
+  }
+
+  /* ---- Filter chips ---- */
+  .filter-chip {
+    @apply px-4 py-1.5 text-xs font-medium uppercase tracking-widest transition-colors duration-150 border select-none cursor-pointer whitespace-nowrap;
+    border-radius: var(--radius-sm);
+  }
+
+  .filter-chip-active {
+    background-color: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+
+  .filter-chip-idle {
+    background-color: transparent;
+    color: var(--muted);
+    border-color: var(--border);
+  }
+
+  .filter-chip-idle:hover {
+    border-color: var(--border-2);
+    color: var(--text);
+  }
+
+  /* ---- Quantity stepper ---- */
+  .qty-stepper {
+    @apply inline-flex items-center border;
+    border-color: var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .qty-stepper-btn {
+    @apply w-9 h-9 flex items-center justify-center text-sm font-medium transition-colors duration-150;
+    color: var(--muted);
+  }
+
+  .qty-stepper-btn:hover {
+    background-color: var(--surface-2);
+    color: var(--text);
+  }
+
+  .qty-stepper-val {
+    @apply w-9 h-9 flex items-center justify-center text-sm font-semibold;
+    color: var(--text);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+
+  /* ---- Toast ---- */
+  .toast {
+    @apply fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 shadow-[var(--shadow-lg)] text-sm font-medium min-w-[220px] max-w-xs pointer-events-none;
+    background-color: var(--text);
+    color: var(--bg);
+    border-radius: var(--radius);
+    animation: toast-in 0.25s ease-out;
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ---- Overlay / backdrop ---- */
+  .overlay-fade {
+    @apply transition-opacity duration-200;
+  }
+}
