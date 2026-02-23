@@ -138,8 +138,13 @@ router.post('/product-cutout/:id', authenticateJWT, async (req: AuthRequest, res
         const imgRes = await axios.get(prod.imageUrl, { responseType: 'arraybuffer' });
 
         const timestamp = Date.now();
-        const tmpInput = path.join(__dirname, `../../uploads/products/tmp-${timestamp}.jpg`);
-        const finalOutput = path.join(__dirname, `../../uploads/products/prod-${productId}-cutout.png`);
+        const productsDir = path.join(__dirname, '../../uploads/products');
+        if (!fs.existsSync(productsDir)) {
+            fs.mkdirSync(productsDir, { recursive: true });
+        }
+
+        const tmpInput = path.join(productsDir, `tmp-${timestamp}.jpg`);
+        const finalOutput = path.join(productsDir, `prod-${productId}-cutout.png`);
 
         fs.writeFileSync(tmpInput, imgRes.data);
 

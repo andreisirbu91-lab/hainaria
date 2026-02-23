@@ -28,7 +28,10 @@ interface StudioState {
 const getFullUrl = (url: string | null) => {
     if (!url) return null;
     if (url.startsWith('http') || url.startsWith('data:')) return url;
-    return `http://localhost:5000${url.startsWith('/') ? '' : '/'}${url}`;
+    const baseUrl = import.meta.env.VITE_API_URL
+        ? import.meta.env.VITE_API_URL.replace('/api', '')
+        : 'http://localhost:5000';
+    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
 export const useStudioStore = create<StudioState>((set) => ({
