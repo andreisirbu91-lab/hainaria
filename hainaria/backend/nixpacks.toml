@@ -1,13 +1,13 @@
 providers = ["node"]
 
 [phases.setup]
-nixPkgs = ["nodejs_20", "openssl"]
+nixPkgs = ["nodejs_20", "openssl", "python3"]
 
 [phases.install]
-cmds = ["npm ci"]
+cmds = ["npm ci", "python -m venv /opt/venv", ". /opt/venv/bin/activate && pip install --upgrade pip && pip install rembg onnxruntime Pillow"]
 
 [phases.build]
 cmds = ["npx prisma generate", "npm run build"]
 
 [start]
-cmd = "npx prisma db push --accept-data-loss && npm run start"
+cmd = ". /opt/venv/bin/activate && npx prisma db push --accept-data-loss && npm run start"
