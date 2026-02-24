@@ -51,7 +51,12 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
-    res.status(200).json({ ok: true, timestamp: new Date().toISOString() });
+    res.status(200).json({
+        ok: true,
+        timestamp: new Date().toISOString(),
+        debug_tokenExists: !!process.env.REPLICATE_API_TOKEN,
+        debug_tokenLength: process.env.REPLICATE_API_TOKEN ? process.env.REPLICATE_API_TOKEN.length : 0
+    });
 });
 
 // 404
