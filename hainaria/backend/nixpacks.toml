@@ -1,5 +1,8 @@
 providers = ["node"]
 
+[variables]
+REPLICATE_API_TOKEN = "${REPLICATE_API_TOKEN}"
+
 [phases.setup]
 nixPkgs = ["nodejs_20", "openssl", "python3"]
 
