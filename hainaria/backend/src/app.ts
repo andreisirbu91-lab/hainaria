@@ -56,12 +56,29 @@ app.get('/api/health', (_req: Request, res: Response) => {
     const files = fs.readdirSync(process.cwd());
     const envKeys = Object.keys(process.env);
 
+    const hasVenv = fs.existsSync('/opt/venv/bin/python3');
+    let pythonVersion = 'unknown';
+    let rembgCheck = 'unknown';
+
+    try {
+        const { execSync } = require('child_process');
+        pythonVersion = execSync('python3 --version').toString().trim();
+        rembgCheck = execSync('python3 -c "import rembg; print(\\"ok\\")"').toString().trim();
+    } catch (e: any) {
+        pythonVersion = 'error: ' + (e.message || e);
+    }
+
     res.status(200).json({
         ok: true,
         timestamp: new Date().toISOString(),
         cwd: process.cwd(),
-        files: files.filter((f: string) => !f.startsWith('.')), // ascundem secretele dar vedem .env daca e acolo
+        files: files.filter((f: string) => !f.startsWith('.')),
         hasDotEnv: fs.existsSync(path.join(process.cwd(), '.env')),
+        python: {
+            hasVenv,
+            version: pythonVersion,
+            rembg: rembgCheck
+        },
         envKeys: envKeys.sort(),
         debug_tokenExists: !!(process.env.REPLICATE_API_TOKEN || process.env.REPLICATE_TOKEN),
         debug_tokenLength: (process.env.REPLICATE_API_TOKEN || process.env.REPLICATE_TOKEN || "").length
