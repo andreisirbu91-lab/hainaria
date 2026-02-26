@@ -62,9 +62,9 @@ app.get('/api/health', (_req: Request, res: Response) => {
         cwd: process.cwd(),
         files: files.filter((f: string) => !f.startsWith('.')), // ascundem secretele dar vedem .env daca e acolo
         hasDotEnv: fs.existsSync(path.join(process.cwd(), '.env')),
-        envKeys: envKeys.filter(k => k.includes('TOKEN') || k.includes('URL') || k.includes('PORT')),
-        debug_tokenExists: !!process.env.REPLICATE_API_TOKEN,
-        debug_tokenLength: process.env.REPLICATE_API_TOKEN ? process.env.REPLICATE_API_TOKEN.length : 0
+        envKeys: envKeys.sort(),
+        debug_tokenExists: !!(process.env.REPLICATE_API_TOKEN || process.env.REPLICATE_TOKEN),
+        debug_tokenLength: (process.env.REPLICATE_API_TOKEN || process.env.REPLICATE_TOKEN || "").length
     });
 });
 

@@ -215,7 +215,9 @@ router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Res
         const humanImg = getBase64DataURI(avatarLocalPath);
         const garmImg = getBase64DataURI(garmentLocalPath);
 
-        if (!process.env.REPLICATE_API_TOKEN || process.env.REPLICATE_API_TOKEN === 'mock' || process.env.REPLICATE_API_TOKEN.length < 10) {
+        const replicateToken = process.env.REPLICATE_API_TOKEN || process.env.REPLICATE_TOKEN;
+
+        if (!replicateToken || replicateToken === 'mock' || (replicateToken.length < 10 && replicateToken !== 'mock')) {
             console.log('[Studio VTON] MOCK MODE: No valid Replicate Token attached. Simulating a 10s delay...');
             // Simulam o procesare lunga
             await new Promise(resolve => setTimeout(resolve, 10000));
@@ -228,7 +230,7 @@ router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Res
         }
 
         const replicate = new Replicate({
-            auth: process.env.REPLICATE_API_TOKEN,
+            auth: replicateToken,
         });
 
         const output = await replicate.run(
