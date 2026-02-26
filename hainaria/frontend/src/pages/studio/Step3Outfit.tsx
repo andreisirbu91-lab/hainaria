@@ -4,10 +4,10 @@ import AILoader from '../../components/studio/AILoader';
 import { useStudioStore } from '../../store/studioStore';
 
 export default function Step3Outfit({ onNext, onPrev }: { onNext: () => void, onPrev: () => void }) {
-    const { isProcessingAI, aiResultUrl, originalUrl, garments } = useStudioStore();
+    const { isProcessingAI, aiResultUrl, originalUrl, cutoutUrl, garments } = useStudioStore();
 
-    // Imaginea de bază arătată în Canvas/Preview este fie rezultatul AI, fie poza originală a userului.
-    const currentView = aiResultUrl || originalUrl;
+    // Imaginea de bază arătată în Canvas/Preview este fie rezultatul AI, fie poza decupată, fie cea originală.
+    const currentView = aiResultUrl || cutoutUrl || originalUrl;
 
     return (
         <div className="w-full h-[600px] flex md:flex-row flex-col gap-8">

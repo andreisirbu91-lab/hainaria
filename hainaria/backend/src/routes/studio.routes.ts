@@ -233,12 +233,39 @@ router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Res
 
         if (!fs.existsSync(avatarLocalPath)) {
             console.error('[Studio] Avatar file missing on disk:', avatarLocalPath);
-            return res.status(404).json({ ok: false, message: 'Imaginea avatarului a dispărut de pe server.' });
+            return res.status(404).json({ ok: false, message: 'Poza ta a dispărut de pe server (probabil de la un Restart). Te rugăm să re-încarci poza.' });
         }
 
         if (!fs.existsSync(garmentLocalPath)) {
-            console.error('[Studio] Garment file missing on disk:', garmentLocalPath);
-            return res.status(404).json({ ok: false, message: 'Imaginea decupată a produsului a dispărut de pe server.' });
+            console.warn('[Studio] Garment file missing on disk, attempting re-generation:', garmentLocalPath);
+            // Re-run cutout logic internally
+            const prod = await prisma.product.findUnique({ where: { id: productId } });
+            if (!prod || !prod.imageUrl) return res.status(404).json({ ok: false, message: 'Imaginea produsului nu mai există.' });
+
+            try {
+                const axios = require('axios');
+                const imgRes = await axios.get(prod.imageUrl, { responseType: 'arraybuffer' });
+                const productsDir = path.dirname(garmentLocalPath);
+                if (!fs.existsSync(productsDir)) fs.mkdirSync(productsDir, { recursive: true });
+
+                const tmpInput = garmentLocalPath + '.tmp.jpg';
+                fs.writeFileSync(tmpInput, imgRes.data);
+
+                const pyScript = path.join(__dirname, '../../py/remove_bg.py');
+                const pythonPath = fs.existsSync('/opt/venv/bin/python3') ? '/opt/venv/bin/python3' : 'python3';
+                const command = `${pythonPath} ${pyScript} "${tmpInput}" "${garmentLocalPath}"`;
+
+                await execPromise(command, { maxBuffer: 10 * 1024 * 1024 });
+                fs.unlinkSync(tmpInput);
+                console.log('[Studio] Re-generation successful for garment:', productId);
+            } catch (reGenErr) {
+                console.error('[Studio] Re-generation failed:', reGenErr);
+                return res.status(500).json({ ok: false, message: 'Nu am putut re-genera decupajul hainei.' });
+            }
+        }
+
+        if (!fs.existsSync(garmentLocalPath)) {
+            return res.status(404).json({ ok: false, message: 'Imaginea decupată a hainei nu a putut fi găsită.' });
         }
 
         const getBase64DataURI = (file: string) => {
