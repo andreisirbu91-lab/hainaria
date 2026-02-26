@@ -1,7 +1,7 @@
 providers = ["node"]
 
 [phases.setup]
-nixPkgs = ["nodejs_20", "openssl", "python3"]
+nixPkgs = ["nodejs_20", "openssl", "python3", "redis"]
 
 [phases.install]
 cmds = ["npm ci", "python -m venv /opt/venv", ". /opt/venv/bin/activate && pip install --upgrade pip && pip install rembg onnxruntime Pillow"]
@@ -10,4 +10,4 @@ cmds = ["npm ci", "python -m venv /opt/venv", ". /opt/venv/bin/activate && pip i
 cmds = ["npx prisma generate", "npm run build"]
 
 [start]
-cmd = ". /opt/venv/bin/activate && npx prisma db push --accept-data-loss && npm run start"
+cmd = ". /opt/venv/bin/activate && redis-server --daemonize yes && npx prisma db push --accept-data-loss && npm run start"
