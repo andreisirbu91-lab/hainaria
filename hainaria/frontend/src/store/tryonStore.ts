@@ -83,7 +83,9 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
         const formData = new FormData();
         formData.append('image', file);
         try {
-            await api.post(`/tryon/${id}/upload`, formData);
+            await api.post(`/tryon/${id}/upload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             await get().fetchSession(id);
         } catch (err) {
             set({ error: 'Upload failed', isLoading: false });
