@@ -16,12 +16,14 @@ interface HeroBlockProps {
 }
 
 export default function HeroBlock({ content }: HeroBlockProps) {
+    const slide = content?.slides?.[0] || content;
+
     return (
         <section className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-hainaria-bg">
             {/* Background Image with Warm Overlay */}
             <div className="absolute inset-0">
                 <img
-                    src={content.imageUrl || "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=2000"}
+                    src={slide.image || slide.imageUrl || "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=2000"}
                     alt="Hero"
                     className="w-full h-full object-cover"
                 />
@@ -38,24 +40,24 @@ export default function HeroBlock({ content }: HeroBlockProps) {
                     className="max-w-2xl bg-hainaria-bg/85 backdrop-blur-md p-10 md:p-16 rounded-[20px] shadow-2xl border border-hainaria-border"
                 >
                     <h1 className="font-serif text-5xl md:text-7xl mb-6 leading-[1.1] text-hainaria-text italic">
-                        {content.heading}
+                        {slide.title || slide.heading}
                     </h1>
                     <p className="text-hainaria-muted text-lg mb-10 leading-relaxed max-w-md">
-                        {content.subheading}
+                        {slide.subtitle || slide.subheading}
                     </p>
 
                     <div className="flex flex-wrap gap-4">
-                        <Button href={content.primaryCtaHref} variant="gold" size="lg" className="min-w-[200px]">
-                            {content.primaryCtaLabel}
+                        <Button href={slide.ctaLink || slide.primaryCtaHref} variant="gold" size="lg" className="min-w-[200px]">
+                            {slide.ctaText || slide.primaryCtaLabel}
                         </Button>
-                        {content.secondaryCtaLabel && (
-                            <Button href={content.secondaryCtaHref} variant="outline" size="lg" className="min-w-[200px]">
-                                {content.secondaryCtaLabel}
+                        {slide.secondaryCtaLabel && (
+                            <Button href={slide.secondaryCtaHref} variant="outline" size="lg" className="min-w-[200px]">
+                                {slide.secondaryCtaLabel}
                             </Button>
                         )}
                     </div>
 
-                    {content.trustItems && content.trustItems.length > 0 && (
+                    {slide.trustItems && slide.trustItems.length > 0 && (
                         <div className="mt-12 flex flex-wrap items-center gap-6 border-t border-hainaria-border pt-8">
                             {content.trustItems.map((item, idx) => (
                                 <span key={idx} className="text-[10px] font-bold uppercase tracking-[0.2em] text-hainaria-muted flex items-center gap-2">

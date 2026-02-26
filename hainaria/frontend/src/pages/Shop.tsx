@@ -15,7 +15,8 @@ interface Product {
     category: string;
     condition: string;
     tag?: string;
-    imageUrl: string;
+    imageUrl?: string;
+    images?: Array<{ url: string }>;
 }
 
 const CATEGORIES = [
@@ -131,8 +132,8 @@ export default function Shop() {
                                                 <button
                                                     onClick={() => handleCategory(cat.id)}
                                                     className={`text-sm transition-all duration-300 flex items-center justify-between w-full group ${activeCategory === cat.id
-                                                            ? 'text-hainaria-text font-bold translate-x-1'
-                                                            : 'text-hainaria-muted hover:text-hainaria-accent hover:translate-x-1'
+                                                        ? 'text-hainaria-text font-bold translate-x-1'
+                                                        : 'text-hainaria-muted hover:text-hainaria-accent hover:translate-x-1'
                                                         }`}
                                                 >
                                                     {cat.label}
@@ -200,7 +201,7 @@ export default function Shop() {
                                     >
                                         <div className="relative aspect-[3/4] overflow-hidden rounded-[18px] bg-hainaria-surface mb-5 shadow-sm group-hover:shadow-xl transition-all duration-500">
                                             <img
-                                                src={product.imageUrl}
+                                                src={product.images?.[0]?.url || product.imageUrl || "https://images.unsplash.com/photo-1539109132314-347f8541e4a0?auto=format&fit=crop&q=80&w=800"}
                                                 alt={product.title}
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />

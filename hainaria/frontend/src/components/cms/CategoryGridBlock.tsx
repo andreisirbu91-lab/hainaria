@@ -34,17 +34,17 @@ export default function CategoryGridBlock({ content }: CategoryGridBlockProps) {
                 )}
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {content.categories.map((cat, idx) => (
+                    {content.categories.map((cat: any, idx) => (
                         <motion.a
-                            key={cat.id}
-                            href={cat.href}
+                            key={cat.id || idx}
+                            href={cat.href || cat.link}
                             whileHover={{ y: -5 }}
                             className={`relative group overflow-hidden rounded-[18px] bg-hainaria-surface ${cat.span === 'wide' ? 'md:col-span-2' :
-                                    cat.span === 'tall' ? 'row-span-2' : ''
+                                cat.span === 'tall' ? 'row-span-2' : ''
                                 } aspect-[4/5]`}
                         >
                             <img
-                                src={cat.imageUrl || `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800`}
+                                src={cat.imageUrl || cat.image || `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800`}
                                 alt={cat.label}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             />
