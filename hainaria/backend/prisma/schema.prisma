@@ -18,21 +18,233 @@ model User {
   orders       Order[]
 }
 
+enum AdminRole {
+  ADMIN
+  EDITOR
+  SUPPORT
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(EDITOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  auditLogs    AuditLog[]
+}
+
 model Product {
-  id        String   @id @default(uuid())
-  title     String
-  price     Float
-  brand     String   @default("")
-  category  String
-  size      String
-  condition String
-  tag           String              @default("Second-hand")
-  stock         Int                 @default(1)
-  imageUrl      String
-  isTryOnCutout Boolean             @default(false)
-  createdAt     DateTime            @default(now())
-  tryOnConfig   ProductTryOnConfig?
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  description   String   @db.Text
+  price         Float
+  salePrice     Float?
+  sku           String?  @unique
+  barcode       String?
+  stock         Int      @default(0)
+  status        String   @default("DRAFT") // DRAFT, PUBLISHED
+  brand         String?
+  category      String?
+  condition     String?
+  tag           String?
+  isTryOnCutout Boolean  @default(false)
+  
+  images        ProductImage[]
+  variants      ProductVariant[]
+  attributes    ProductAttribute[]
+  collections   CollectionProduct[]
   orderItems    OrderItem[]
+  tryOnConfig   ProductTryOnConfig?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  ogImageAssetId  String?
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+}
+
+model ProductImage {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url        String
+  alt        String?
+  position   Int      @default(0)
+  isMain     Boolean  @default(false)
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  title      String   // e.g. "Red / M"
+  sku        String?  @unique
+  price      Float?
+  stock      Int      @default(0)
+}
+
+model ProductAttribute {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name       String   // e.g. "Color"
+  value      String   // e.g. "Red"
+}
+
+model Collection {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?
+  imageUrl    String?
+  products    CollectionProduct[]
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  ogImageAssetId  String?
+
+  createdAt   DateTime @default(now())
+}
+
+model CollectionProduct {
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  position     Int        @default(0)
+
+  @@id([collectionId, productId])
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  thumbUrl  String?
+  mimeType  String
+  size      Int
+  folderId  String?
+  folder    MediaFolder? @relation(fields: [folderId], references: [id])
+  tags      String[]
+  createdAt DateTime @default(now())
+}
+
+model MediaFolder {
+  id        String   @id @default(cuid())
+  name      String
+  parentId  String?
+  parent    MediaFolder? @relation("SubFolders", fields: [parentId], references: [id])
+  children  MediaFolder[] @relation("SubFolders")
+  assets    MediaAsset[]
+  createdAt DateTime @default(now())
+}
+
+model Page {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         Json?    // Published content
+  status          String   @default("DRAFT") // DRAFT, PUBLISHED
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  ogImageAssetId  String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  versions        PageVersion[]
+}
+
+model PageVersion {
+  id        String   @id @default(cuid())
+  pageId    String
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  content   Json
+  isPublished Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ContentBlock {
+  id        String   @id @default(cuid())
+  key       String?  @unique // Optional unique key
+  type      String   // HERO, CATEGORY_GRID, FEATURED_PRODUCTS, HOW_IT_WORKS, NEWSLETTER, BANNER
+  content   Json     // Specific fields for the type
+  position  Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SettingsStore {
+  id               Int      @id @default(1)
+  storeName        String   @default("Hainaria")
+  logoAssetId      String?
+  faviconAssetId   String?
+  
+  // Theme Tokens
+  bgColor          String   @default("#F6F1E8")
+  surfaceColor     String   @default("#EFE4D6")
+  primaryTextColor String   @default("#2F241D")
+  mutedTextColor   String   @default("#6A5A4F")
+  accentColor      String   @default("#7A5C45")
+  highlightColor   String   @default("#C6A76E")
+  borderColor      String   @default("#E2D4C3")
+  borderRadius     Int      @default(14)
+  
+  // Footer & Contact
+  footerColumns    Json?    // Array of columns { title, links: [{ label, href }] }
+  contactEmail     String?
+  contactPhone     String?
+  address          String?
+  
+  // Navigation
+  menuItems        Json?    // Array of { label, href, order }
+
+  shippingRules    Json?
+  taxConfig        Json?
+  updatedAt        DateTime @updatedAt
+}
+
+model Integration {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  enabled     Boolean  @default(true)
+  secretKey   String   // Encrypted
+  publicConfig Json?
+  createdAt   DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  adminId     String
+  admin       AdminUser @relation(fields: [adminId], references: [id])
+  action      String   // e.g. "PRODUCT_UPDATE"
+  entityType  String   // e.g. "PRODUCT"
+  entityId    String
+  changes     Json?
+  createdAt   DateTime @default(now())
+}
+
+enum TryOnStatus {
+  CREATED
+  UPLOADED               
+  BG_REMOVAL_QUEUED      
+  BG_REMOVAL_DONE        
+  READY_FOR_TRYON        
+  TRYON_QUEUED           
+  TRYON_DONE             
+  IN_CART                
+  CHECKOUT_STARTED
+  PAID
+  COMPLETED
+  FAILED
 }
 
 enum GarmentType {
@@ -42,6 +254,98 @@ enum GarmentType {
   DRESS
   SHOES
   ACCESSORY
+}
+
+model TryOnSession {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  status      TryOnStatus   @default(CREATED)
+  assets      TryOnAsset[]
+  jobs        TryOnJob[]
+  currentResultUrl String?   
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  orderId     String?
+  order       Order?        @relation(fields: [orderId], references: [id])
+}
+
+model TryOnAsset {
+  id          String        @id @default(cuid())
+  sessionId   String
+  session     TryOnSession  @relation(fields: [sessionId], references: [id])
+  type        String        
+  url         String
+  createdAt   DateTime      @default(now())
+}
+
+model TryOnJob {
+  id          String        @id @default(cuid())
+  sessionId   String
+  session     TryOnSession  @relation(fields: [sessionId], references: [id])
+  type        String        
+  status      String        
+  payload     Json?
+  result      Json?
+  error       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Order {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  totalAmount Float
+  status      String        // 'PENDING', 'PAID', 'SHIPPED'
+  stripeId    String?       @unique
+  items       OrderItem[]
+  sessions    TryOnSession[] 
+  notes       OrderNote[]
+  fulfillment Fulfillment?
+  createdAt   DateTime      @default(now())
+}
+
+model OrderNote {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  content   String
+  isInternal Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Fulfillment {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String   // 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'
+  trackingNumber String?
+  carrier   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id          String        @id @default(cuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id])
+  productId   String
+  product     Product       @relation(fields: [productId], references: [id])
+  price       Float
+  quantity    Int           @default(1)
+}
+
+model TryOnLook {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  avatarId   String
+  avatar     UserAvatar @relation(fields: [avatarId], references: [id])
+  name       String?
+  sceneJson  Json
+  previewUrl String?
+  createdAt  DateTime   @default(now())
 }
 
 model UserAvatar {
@@ -66,96 +370,4 @@ model ProductTryOnConfig {
   anchorY     Float
   scale       Float
   rotationDeg Float       @default(0)
-}
-
-enum TryOnStatus {
-  CREATED
-  UPLOADED               // Poză brută urcată
-  BG_REMOVAL_QUEUED      // În coadă pentru remove.bg
-  BG_REMOVAL_DONE        // Fundal scos cu succes
-  READY_FOR_TRYON        // Om decupat, gata de probă
-  TRYON_QUEUED           // În coadă pentru Replicate
-  TRYON_DONE             // Imagine generată AI
-  IN_CART                // Adăugat în coș
-  CHECKOUT_STARTED
-  PAID
-  COMPLETED
-  FAILED
-}
-
-model TryOnSession {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  status      TryOnStatus   @default(CREATED)
-  
-  // Assets linked to this session
-  assets      TryOnAsset[]
-  jobs        TryOnJob[]
-  
-  currentResultUrl String?   // Ultima imagine generată/procesată
-  
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-  orderId     String?
-  order       Order?        @relation(fields: [orderId], references: [id])
-}
-
-model TryOnAsset {
-  id          String        @id @default(cuid())
-  sessionId   String
-  session     TryOnSession  @relation(fields: [sessionId], references: [id])
-  type        String        // 'RAW', 'CUTOUT', 'RESULT'
-  url         String
-  createdAt   DateTime      @default(now())
-}
-
-model TryOnJob {
-  id          String        @id @default(cuid())
-  sessionId   String
-  session     TryOnSession  @relation(fields: [sessionId], references: [id])
-  type        String        // 'BG_REMOVAL', 'AI_TRYON'
-  status      String        // 'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'
-  payload     Json?
-  result      Json?
-  error       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
-model Order {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  totalAmount Float
-  status      String        // 'PENDING', 'PAID', 'SHIPPED'
-  stripeId    String?       @unique
-  
-  items       OrderItem[]
-  sessions    TryOnSession[] // Sesiunile de probă care au dus la această comandă
-  
-  createdAt   DateTime      @default(now())
-}
-
-model OrderItem {
-  id          String        @id @default(cuid())
-  orderId     String
-  order       Order         @relation(fields: [orderId], references: [id])
-  productId   String
-  product     Product       @relation(fields: [productId], references: [id])
-  price       Float
-  quantity    Int           @default(1)
-}
-
-model TryOnLook {
-  id         String     @id @default(cuid())
-  userId     String
-  user       User       @relation(fields: [userId], references: [id])
-  avatarId   String
-  avatar     UserAvatar @relation(fields: [avatarId], references: [id])
-  name       String?
-  sceneJson  Json
-  previewUrl String?
-  createdAt  DateTime   @default(now())
 }

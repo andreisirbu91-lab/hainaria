@@ -20,7 +20,7 @@ router.post('/session', authenticateJWT, async (req: AuthRequest, res: Response)
 
 // 2. Upload Image
 router.post('/:id/upload', authenticateJWT, upload.single('image'), async (req: AuthRequest, res: Response): Promise<any> => {
-    const { id } = req.params;
+    const id = req.params.id as string;
     if (!req.file) return res.status(400).json({ ok: false, message: 'No image uploaded' });
 
     const session = await prisma.tryOnSession.findUnique({ where: { id } });
@@ -40,9 +40,13 @@ router.post('/:id/upload', authenticateJWT, upload.single('image'), async (req: 
     res.json({ ok: true, status: TryOnStatus.UPLOADED });
 });
 
+import { addTryOnJob } from '../queues/tryon.queue';
+
+// ... existing code ...
+
 // 3. Trigger BG Removal
 router.post('/:id/bg-remove', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const session = await prisma.tryOnSession.findUnique({
         where: { id },
         include: { assets: true }
@@ -52,53 +56,92 @@ router.post('/:id/bg-remove', authenticateJWT, async (req: AuthRequest, res: Res
         return res.status(400).json({ ok: false, message: 'Invalid state for BG removal' });
     }
 
-    const rawAsset = session.assets.find(a => a.type === 'RAW');
+    const rawAsset = (session as any).assets.find((a: any) => a.type === 'RAW');
     if (!rawAsset) return res.status(404).json({ ok: false, message: 'Raw image not found' });
+
+    // Create Job Record
+    const jobRecord = await prisma.tryOnJob.create({
+        data: {
+            sessionId: id,
+            type: 'BG_REMOVAL',
+            status: 'PENDING',
+            payload: { imageUrl: rawAsset.url }
+        }
+    });
 
     await prisma.tryOnSession.update({
         where: { id },
         data: { status: TryOnStatus.BG_REMOVAL_QUEUED }
     });
 
-    await bgQueue.add('remove-bg', {
-        sessionId: id,
-        imageUrl: rawAsset.url
-    });
+    // Add to BullMQ
+    await addTryOnJob('BG_REMOVAL', id, { imageUrl: rawAsset.url });
 
-    res.json({ ok: true, status: TryOnStatus.BG_REMOVAL_QUEUED });
+    res.json({ ok: true, status: TryOnStatus.BG_REMOVAL_QUEUED, jobId: jobRecord.id });
 });
 
 // 4. Trigger AI Try-On
 router.post('/:id/try', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
-    const { id } = req.params;
-    const { productIds } = req.body;
+    const id = req.params.id as string;
+    const { productId } = req.body; // Adjusted to single product for this specific worker implementation
 
-    if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
-        return res.status(400).json({ ok: false, message: 'No products selected' });
+    if (!productId) {
+        return res.status(400).json({ ok: false, message: 'No product selected' });
     }
 
-    const session = await prisma.tryOnSession.findUnique({ where: { id } });
-    if (!session || session.status !== TryOnStatus.BG_REMOVAL_DONE && session.status !== TryOnStatus.READY_FOR_TRYON && session.status !== TryOnStatus.TRYON_DONE) {
+    const session = await prisma.tryOnSession.findUnique({
+        where: { id },
+        include: { assets: true }
+    });
+
+    if (!session || (session.status !== TryOnStatus.BG_REMOVAL_DONE && session.status !== TryOnStatus.READY_FOR_TRYON && session.status !== TryOnStatus.TRYON_DONE)) {
         return res.status(400).json({ ok: false, message: 'Invalid state for AI Try-On' });
     }
+
+    const cutoutAsset = (session as any).assets.find((a: any) => a.type === 'CUTOUT');
+    if (!cutoutAsset) return res.status(404).json({ ok: false, message: 'Cutout image not found' });
+
+    const product = await prisma.product.findUnique({
+        where: { id: productId },
+        include: { images: true }
+    });
+    if (!product || !product.images[0]) return res.status(404).json({ ok: false, message: 'Product or product image not found' });
+
+    // Create Job Record
+    const jobRecord = await prisma.tryOnJob.create({
+        data: {
+            sessionId: id,
+            type: 'AI_TRYON',
+            status: 'PENDING',
+            payload: {
+                modelImage: cutoutAsset.url,
+                garmentImage: product.images[0].url,
+                garmentType: product.category || 'top',
+                productId: product.id
+            }
+        }
+    });
 
     await prisma.tryOnSession.update({
         where: { id },
         data: { status: TryOnStatus.TRYON_QUEUED }
     });
 
-    await tryOnQueue.add('generate-tryon', {
-        sessionId: id,
-        productIds
+    // Add to BullMQ
+    await addTryOnJob('AI_TRYON', id, {
+        modelImage: cutoutAsset.url,
+        garmentImage: product.images[0].url,
+        garmentType: product.category || 'top',
+        productId: product.id
     });
 
-    res.json({ ok: true, status: TryOnStatus.TRYON_QUEUED });
+    res.json({ ok: true, status: TryOnStatus.TRYON_QUEUED, jobId: jobRecord.id });
 });
 
 // 5. Status Polling
 router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
     const session = await prisma.tryOnSession.findUnique({
-        where: { id: req.params.id },
+        where: { id: req.params.id as string },
         include: { assets: true, jobs: { orderBy: { createdAt: 'desc' }, take: 1 } }
     });
 

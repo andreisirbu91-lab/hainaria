@@ -1,6 +1,6 @@
 import React from 'react';
 
-type BadgeVariant = 'dark' | 'light' | 'muted' | 'success' | 'warn';
+type BadgeVariant = 'gold' | 'accent' | 'muted' | 'success' | 'outline' | 'dark';
 
 interface BadgeProps {
     variant?: BadgeVariant;
@@ -8,14 +8,19 @@ interface BadgeProps {
     className?: string;
 }
 
-const cls: Record<BadgeVariant, string> = {
-    dark: 'badge-dark',
-    light: 'badge-light',
-    muted: 'badge-muted',
-    success: 'badge-success',
-    warn: 'badge-warn',
+const variantStyles: Record<BadgeVariant, string> = {
+    gold: 'bg-hainaria-gold text-white',
+    accent: 'bg-hainaria-accent text-white',
+    muted: 'bg-hainaria-surface text-hainaria-muted border border-hainaria-border',
+    success: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+    outline: 'border border-hainaria-border text-hainaria-text',
+    dark: 'bg-hainaria-text text-white',
 };
 
 export function Badge({ variant = 'muted', children, className = '' }: BadgeProps) {
-    return <span className={`${cls[variant]} ${className}`}>{children}</span>;
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.1em] ${variantStyles[variant]} ${className}`}>
+            {children}
+        </span>
+    );
 }

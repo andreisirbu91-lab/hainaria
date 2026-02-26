@@ -1,76 +1,56 @@
 import React, { useEffect } from 'react';
-import { useTryOnStore } from '../../../store/tryOnStore';
-import UploadStep from './UploadStep';
-import ProcessingStep from './ProcessingStep';
-import SelectionStep from './SelectionStep';
-import ResultStep from './ResultStep';
+import { useTryOnStore } from '../../../store/tryonStore';
+import Step1Upload from './Step1Upload';
+import Step2Background from './Step2Background';
+import Step3Selection from './Step3Selection';
+import Step4Review from './Step4Review';
+import ProgressBar from './ProgressBar';
 
 export default function TryOnWizard() {
-    const { status, sessionId, initSession, pollStatus } = useTryOnStore();
+    const { sessionId, session, createSession, fetchSession, isLoading } = useTryOnStore();
 
     useEffect(() => {
         if (!sessionId) {
-            initSession();
+            createSession();
+        } else {
+            fetchSession(sessionId);
         }
     }, []);
 
-    // Status-based polling
-    useEffect(() => {
-        if (!sessionId) return;
-        const needsPolling = ['BG_REMOVAL_QUEUED', 'TRYON_QUEUED'].includes(status);
+    if (!session && isLoading) {
+        return <div className="py-20 text-center animate-pulse italic text-gray-400">Inițializare sesiune de probă...</div>;
+    }
 
-        if (needsPolling) {
-            const interval = setInterval(pollStatus, 2000);
-            return () => clearInterval(interval);
-        }
-    }, [status, sessionId]);
+    if (!session) return null;
 
     const renderStep = () => {
-        switch (status) {
+        switch (session.status) {
             case 'CREATED':
+                return <Step1Upload />;
             case 'UPLOADED':
-                return <UploadStep />;
             case 'BG_REMOVAL_QUEUED':
-                return <ProcessingStep message="Se elimină fundalul..." />;
+                return <Step2Background />;
             case 'BG_REMOVAL_DONE':
             case 'READY_FOR_TRYON':
-                return <SelectionStep />;
             case 'TRYON_QUEUED':
-                return <ProcessingStep message="AI-ul glisează haina pe tine..." />;
+                return <Step3Selection />;
             case 'TRYON_DONE':
-                return <ResultStep />;
+                return <Step4Review />;
             case 'FAILED':
-                return <div className="text-red-500 p-4">Ceva nu a mers bine. Te rugăm să reîncarci pagina.</div>;
+                return <div className="p-8 bg-red-50 text-red-600 rounded-2xl text-center">
+                    Ceva nu a mers bine. Te rugăm să reîncarci pagina sau să încerci din nou.
+                </div>;
             default:
-                return <UploadStep />;
+                return <Step1Upload />;
         }
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-[var(--surface)] rounded-2xl shadow-xl border border-[var(--border)]">
-            <div className="mb-8 flex justify-between">
-                {/* Step Indicators */}
-                {['Sîrcă', 'Tăiere', 'Alegere', 'Rezultat'].map((step, i) => (
-                    <div key={step} className={`flex items-center gap-2 ${i <= getStepIndex(status) ? 'text-[var(--text)]' : 'text-[var(--muted)]'}`}>
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${i <= getStepIndex(status) ? 'bg-[var(--text)] text-[var(--bg)]' : 'bg-[var(--border)]'}`}>
-                            {i + 1}
-                        </div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold">{step}</span>
-                    </div>
-                ))}
-            </div>
-
-            <div className="min-h-[400px]">
+        <div className="max-w-6xl mx-auto">
+            <ProgressBar status={session.status} />
+            <div className="mt-8 transition-all duration-500 ease-in-out">
                 {renderStep()}
             </div>
         </div>
     );
-}
-
-function getStepIndex(status: string) {
-    if (['CREATED', 'UPLOADED'].includes(status)) return 0;
-    if (status === 'BG_REMOVAL_QUEUED') return 1;
-    if (['BG_REMOVAL_DONE', 'READY_FOR_TRYON'].includes(status)) return 2;
-    if (['TRYON_QUEUED', 'TRYON_DONE'].includes(status)) return 3;
-    return 0;
 }

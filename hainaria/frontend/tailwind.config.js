@@ -26,9 +26,21 @@ export default {
                 'border-2': 'var(--border-2)',
                 accent: 'var(--accent)',
                 'accent-2': 'var(--accent-2)',
+
+                // Redesign tokens (Autumn Feminine)
+                hainaria: {
+                    bg: '#F6F1E8',
+                    surface: '#EFE4D6',
+                    text: '#2F241D',
+                    muted: '#6A5A4F',
+                    accent: '#7A5C45',
+                    gold: '#C6A76E',
+                    border: '#E2D4C3',
+                }
             },
             fontFamily: {
                 sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+                serif: ['"Playfair Display"', 'serif'],
             },
             borderRadius: {
                 DEFAULT: 'var(--radius)',

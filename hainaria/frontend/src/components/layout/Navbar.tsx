@@ -1,8 +1,9 @@
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingBag, User, LogOut, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
-import { useState } from 'react';
+import api from '../../lib/api';
 
 export default function Navbar() {
     const { user, logout } = useAuthStore();
@@ -11,6 +12,21 @@ export default function Navbar() {
     const navigate = useNavigate();
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [settings, setSettings] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await api.get('/public/settings');
+                if (res.data.ok) {
+                    setSettings(res.data.settings);
+                }
+            } catch (err) {
+                console.error('Failed to fetch navbar settings', err);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleLogout = () => {
         logout();
@@ -20,13 +36,18 @@ export default function Navbar() {
 
     const isActive = (path: string) => location.pathname === path;
 
+    const navItems = settings?.mainNavigation || [
+        { label: 'Colecție', href: '/shop' },
+        { label: 'Studio VTO', href: '/studio' },
+    ];
+
     const navLink = (to: string, label: string) => (
         <Link
             to={to}
             onClick={() => setMobileOpen(false)}
-            className={`text-[10px] font-semibold uppercase tracking-[0.25em] transition-colors duration-150 relative pb-0.5 ${isActive(to)
-                ? 'text-[var(--text)] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-[var(--text)]'
-                : 'text-[var(--muted)] hover:text-[var(--text)]'
+            className={`text-[10px] font-bold uppercase tracking-[0.3em] transition-all duration-300 relative pb-1 ${isActive(to)
+                ? 'text-hainaria-text border-b border-hainaria-gold'
+                : 'text-hainaria-muted hover:text-hainaria-accent'
                 }`}
         >
             {label}
@@ -34,142 +55,119 @@ export default function Navbar() {
     );
 
     return (
-        <>
-            <nav
-                className="sticky top-0 z-50 border-b"
-                style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
-            >
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
+        <nav className="sticky top-0 z-50 bg-hainaria-bg/80 backdrop-blur-lg border-b border-hainaria-border">
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+                <div className="flex justify-between items-center h-20">
 
-                        {/* Logo */}
-                        <Link
-                            to="/"
-                            className="text-base font-bold tracking-[0.25em] uppercase"
-                            style={{ color: 'var(--text)' }}
-                        >
-                            Hainăria
-                        </Link>
-
-                        {/* Desktop nav */}
-                        <nav className="hidden md:flex items-center gap-8">
-                            {navLink('/shop', 'Colecție')}
-                            {navLink('/studio', 'Studio')}
-                            {user?.role === 'ADMIN' && navLink('/admin', 'Admin')}
-                        </nav>
-
-                        {/* Desktop actions */}
-                        <div className="hidden md:flex items-center gap-5">
-                            {user ? (
-                                <>
-                                    <Link
-                                        to="/dashboard"
-                                        className="transition-colors duration-150"
-                                        style={{ color: isActive('/dashboard') ? 'var(--text)' : 'var(--muted)' }}
-                                        aria-label="Profil"
-                                        title="Profil"
-                                    >
-                                        <User className="w-[18px] h-[18px]" />
-                                    </Link>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="transition-colors duration-150"
-                                        style={{ color: 'var(--muted)' }}
-                                        aria-label="Deconectare"
-                                        title="Deconectare"
-                                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--text)')}
-                                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
-                                    >
-                                        <LogOut className="w-[18px] h-[18px]" />
-                                    </button>
-                                </>
-                            ) : (
-                                <Link
-                                    to="/login"
-                                    className={`text-[10px] font-semibold uppercase tracking-[0.25em] transition-colors duration-150 ${isActive('/login') ? 'text-[var(--text)]' : 'text-[var(--muted)] hover:text-[var(--text)]'
-                                        }`}
-                                >
-                                    Intră în cont
-                                </Link>
-                            )}
-
-                            {/* Cart */}
-                            <Link
-                                to="/cart"
-                                className="relative transition-colors duration-150"
-                                style={{ color: isActive('/cart') ? 'var(--text)' : 'var(--muted)' }}
-                                aria-label={`Coș (${cartCount} produse)`}
-                                title="Coș"
-                            >
-                                <ShoppingBag className="w-[18px] h-[18px]" />
-                                {cartCount > 0 && (
-                                    <span
-                                        className="absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center text-[9px] font-bold rounded-full"
-                                        style={{ background: 'var(--text)', color: 'var(--bg)' }}
-                                    >
-                                        {cartCount > 9 ? '9+' : cartCount}
-                                    </span>
-                                )}
-                            </Link>
-                        </div>
-
-                        {/* Mobile: cart + hamburger */}
-                        <div className="flex md:hidden items-center gap-4">
-                            <Link
-                                to="/cart"
-                                className="relative"
-                                style={{ color: 'var(--muted)' }}
-                                aria-label="Coș"
-                            >
-                                <ShoppingBag className="w-5 h-5" />
-                                {cartCount > 0 && (
-                                    <span
-                                        className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[9px] font-bold rounded-full flex items-center justify-center"
-                                        style={{ background: 'var(--text)', color: 'var(--bg)' }}
-                                    >
-                                        {cartCount}
-                                    </span>
-                                )}
-                            </Link>
-                            <button
-                                onClick={() => setMobileOpen(!mobileOpen)}
-                                aria-label="Meniu"
-                                style={{ color: 'var(--muted)' }}
-                            >
-                                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-
-                {/* Mobile menu */}
-                {mobileOpen && (
-                    <div
-                        className="md:hidden border-t px-4 py-6 flex flex-col gap-5"
-                        style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
+                    {/* Logo (Centered or Left) */}
+                    <Link
+                        to="/"
+                        className="text-xl font-serif italic text-hainaria-text hover:text-hainaria-accent transition-colors"
                     >
-                        {navLink('/shop', 'Colecție')}
-                        {navLink('/studio', 'Studio')}
-                        {user?.role === 'ADMIN' && navLink('/admin', 'Admin')}
-                        <div className="divider" />
+                        Hainaria
+                    </Link>
+
+                    {/* Desktop nav */}
+                    <nav className="hidden md:flex items-center gap-10">
+                        {navItems.map((item: any, idx: number) => (
+                            <React.Fragment key={idx}>
+                                {navLink(item.href, item.label)}
+                            </React.Fragment>
+                        ))}
+                        {user?.role === 'ADMIN' && navLink('/admin', 'Admin Panel')}
+                    </nav>
+
+                    {/* Desktop actions */}
+                    <div className="hidden md:flex items-center gap-6">
                         {user ? (
-                            <>
-                                {navLink('/dashboard', 'Profil')}
+                            <div className="flex items-center gap-4">
+                                <Link
+                                    to="/dashboard"
+                                    className={`transition-colors duration-300 ${isActive('/dashboard') ? 'text-hainaria-accent' : 'text-hainaria-muted hover:text-hainaria-text'}`}
+                                    title="Contul Meu"
+                                >
+                                    <User size={18} />
+                                </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="text-[10px] font-semibold uppercase tracking-[0.25em] text-left"
-                                    style={{ color: 'var(--muted)' }}
+                                    className="text-hainaria-muted hover:text-hainaria-accent transition-colors"
+                                    title="Deconectare"
                                 >
-                                    Deconectare
+                                    <LogOut size={18} />
                                 </button>
-                            </>
+                            </div>
                         ) : (
-                            navLink('/login', 'Intră în cont')
+                            <Link
+                                to="/login"
+                                className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-colors duration-300 ${isActive('/login') ? 'text-hainaria-text' : 'text-hainaria-muted hover:text-hainaria-text'}`}
+                            >
+                                Login
+                            </Link>
                         )}
+
+                        <div className="w-[1px] h-4 bg-hainaria-border mx-2" />
+
+                        {/* Cart */}
+                        <Link
+                            to="/cart"
+                            className={`relative transition-colors duration-300 ${isActive('/cart') ? 'text-hainaria-accent' : 'text-hainaria-muted hover:text-hainaria-text'}`}
+                            title={`Coș (${cartCount})`}
+                        >
+                            <ShoppingBag size={18} />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center text-[8px] font-bold rounded-full bg-hainaria-accent text-white shadow-sm">
+                                    {cartCount > 9 ? '9+' : cartCount}
+                                </span>
+                            )}
+                        </Link>
                     </div>
-                )}
-            </nav>
-        </>
+
+                    {/* Mobile Toggle */}
+                    <div className="flex md:hidden items-center gap-4">
+                        <Link to="/cart" className="relative text-hainaria-muted">
+                            <ShoppingBag size={20} />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[8px] font-bold rounded-full flex items-center justify-center bg-hainaria-accent text-white">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
+                        <button
+                            onClick={() => setMobileOpen(!mobileOpen)}
+                            className="text-hainaria-text"
+                        >
+                            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            {/* Mobile menu */}
+            {mobileOpen && (
+                <div className="md:hidden bg-hainaria-bg border-b border-hainaria-border px-6 py-10 flex flex-col gap-8 shadow-2xl">
+                    {navItems.map((item: any, idx: number) => (
+                        <React.Fragment key={idx}>
+                            {navLink(item.href, item.label)}
+                        </React.Fragment>
+                    ))}
+                    {user?.role === 'ADMIN' && navLink('/admin', 'Admin Panel')}
+                    <div className="h-[1px] bg-hainaria-border w-12" />
+                    {user ? (
+                        <>
+                            {navLink('/dashboard', 'Profil')}
+                            <button
+                                onClick={handleLogout}
+                                className="text-[10px] font-bold uppercase tracking-[0.3em] text-left text-hainaria-muted"
+                            >
+                                Deconectare
+                            </button>
+                        </>
+                    ) : (
+                        navLink('/login', 'Autentificare')
+                    )}
+                </div>
+            )}
+        </nav>
     );
 }

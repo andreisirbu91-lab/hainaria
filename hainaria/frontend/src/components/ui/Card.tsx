@@ -1,10 +1,17 @@
 import React from 'react';
 
-interface CardProps { children: React.ReactNode; className?: string; flat?: boolean; }
+interface CardProps {
+    children: React.ReactNode;
+    className?: string;
+    hover?: boolean;
+}
 
-export function Card({ children, className = '', flat = false }: CardProps) {
+export function Card({ children, className = '', hover = false }: CardProps) {
+    const baseClass = 'bg-hainaria-surface/50 backdrop-blur-sm border border-hainaria-border rounded-[18px] shadow-sm overflow-hidden';
+    const hoverClass = hover ? 'transition-all duration-300 hover:shadow-md hover:scale-[1.01]' : '';
+
     return (
-        <div className={`${flat ? 'card-flat' : 'card'} ${className}`}>
+        <div className={`${baseClass} ${hoverClass} ${className}`}>
             {children}
         </div>
     );
@@ -12,7 +19,7 @@ export function Card({ children, className = '', flat = false }: CardProps) {
 
 export function CardHeader({ children, className = '' }: { children: React.ReactNode; className?: string }) {
     return (
-        <div className={`px-6 py-5 border-b` + ` ${className}`} style={{ borderColor: 'var(--border)' }}>
+        <div className={`px-6 py-5 border-b border-hainaria-border ${className}`}>
             {children}
         </div>
     );
@@ -24,7 +31,7 @@ export function CardBody({ children, className = '' }: { children: React.ReactNo
 
 export function CardFooter({ children, className = '' }: { children: React.ReactNode; className?: string }) {
     return (
-        <div className={`px-6 py-5 border-t ${className}`} style={{ borderColor: 'var(--border)' }}>
+        <div className={`px-6 py-5 border-t border-hainaria-border ${className}`}>
             {children}
         </div>
     );

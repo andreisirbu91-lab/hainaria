@@ -147,12 +147,13 @@ router.post('/product-cutout/:id', authenticateJWT, async (req: AuthRequest, res
         if (!conf) return res.status(404).json({ ok: false, message: 'Produsul nu are date pt probare.' });
         if (conf.cutoutUrl) return res.status(200).json({ ok: true, cutoutUrl: conf.cutoutUrl }); // Deja procesat
 
-        const prod = await prisma.product.findUnique({ where: { id: productId } });
-        if (!prod || !prod.imageUrl) return res.status(404).json({ ok: false, message: 'Produs invalid.' });
+        const prod = await prisma.product.findUnique({ where: { id: productId }, include: { images: true } });
+        const imageUrl = prod?.images?.[0]?.url;
+        if (!prod || !imageUrl) return res.status(404).json({ ok: false, message: 'Produs invalid.' });
 
         // Download Unsplash img to /tmp and process
         const axios = require('axios');
-        const imgRes = await axios.get(prod.imageUrl, { responseType: 'arraybuffer' });
+        const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
         const timestamp = Date.now();
         const productsDir = path.join(__dirname, '../../uploads/products');
@@ -255,12 +256,13 @@ router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Res
         if (!fs.existsSync(garmentLocalPath)) {
             console.warn('[Studio] Garment file missing on disk, attempting re-generation:', garmentLocalPath);
             // Re-run cutout logic internally
-            const prod = await prisma.product.findUnique({ where: { id: productId } });
-            if (!prod || !prod.imageUrl) return res.status(404).json({ ok: false, message: 'Imaginea produsului nu mai există.' });
+            const prod = await prisma.product.findUnique({ where: { id: productId }, include: { images: true } });
+            const imageUrl = prod?.images?.[0]?.url;
+            if (!prod || !imageUrl) return res.status(404).json({ ok: false, message: 'Imaginea produsului nu mai există.' });
 
             try {
                 const axios = require('axios');
-                const imgRes = await axios.get(prod.imageUrl, { responseType: 'arraybuffer' });
+                const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer' });
                 const productsDir = path.dirname(garmentLocalPath);
                 if (!fs.existsSync(productsDir)) fs.mkdirSync(productsDir, { recursive: true });
 

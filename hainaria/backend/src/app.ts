@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import path from 'path';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
 import userRoutes from './routes/user.routes';
@@ -9,30 +11,27 @@ import orderRoutes from './routes/order.routes';
 import studioRoutes from './routes/studio.routes';
 import avatarRoutes from './routes/avatar.routes';
 import tryonRoutes from './routes/tryon.routes';
-import path from 'path';
+import adminAuthRoutes from './routes/admin/auth.routes';
+import adminProductRoutes from './routes/admin/products.routes';
+import adminMediaRoutes from './routes/admin/media.routes';
+import adminCollectionRoutes from './routes/admin/collections.routes';
+import adminDashboardRoutes from './routes/admin/dashboard.routes';
+import adminSettingsRoutes from './routes/admin/settings.routes';
+import adminHomeRoutes from './routes/admin/home.routes';
+import adminPageRoutes from './routes/admin/pages.routes';
+import publicRoutes from './routes/public.routes';
 
 dotenv.config();
 
 const app = express();
 
-// CORS
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:80',
-    'https://hainaria.rzs-it.ro',
-    process.env.FRONTEND_URL
-].filter(Boolean) as string[];
-
+// Middleware
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Configurație CORS invalidă pentru această sursă.'));
-        }
-    },
-    credentials: true,
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
 }));
+
+app.use(cookieParser());
 
 // Stripe webhook needs raw body — must come before express.json()
 app.use('/api/orders/webhook', express.raw({ type: 'application/json' }));
@@ -40,6 +39,7 @@ app.use('/api/orders/webhook', express.raw({ type: 'application/json' }));
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -49,6 +49,17 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/studio', studioRoutes);
 app.use('/api/avatars', avatarRoutes);
 app.use('/api/tryon', tryonRoutes);
+app.use('/api/public', publicRoutes);
+
+// Admin Routes
+app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/admin/products', adminProductRoutes);
+app.use('/api/admin/media', adminMediaRoutes);
+app.use('/api/admin/collections', adminCollectionRoutes);
+app.use('/api/admin/dashboard', adminDashboardRoutes);
+app.use('/api/admin/settings', adminSettingsRoutes);
+app.use('/api/admin/home', adminHomeRoutes);
+app.use('/api/admin/pages', adminPageRoutes);
 
 // Static uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

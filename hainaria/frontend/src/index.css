@@ -4,45 +4,45 @@
 /* ─── Design Tokens ─────────────────────────────────────────────────── */
 :root {
   /* Backgrounds */
-  --bg: #FAFAF8;
-  /* warm off-white page background */
-  --surface: #FFFFFF;
-  /* card surfaces */
-  --surface-2: #F5F3EF;
-  /* warm beige for highlights */
+  --bg: #F6F1E8;
+  /* creamy warm background */
+  --surface: #EFE4D6;
+  /* warm beige surface */
+  --surface-2: #E2D4C3;
+  /* slightly darker beige */
 
   /* Text */
-  --text: #141414;
-  /* near-black primary text */
-  --muted: #888880;
-  /* secondary / placeholder */
+  --text: #2F241D;
+  /* espresso primary text */
+  --muted: #6A5A4F;
+  /* warm taupe */
 
   /* Borders */
-  --border: #E6E3DC;
-  /* warm light border */
-  --border-2: #C8C4BB;
-  /* slightly darker border */
+  --border: #E2D4C3;
+  /* consistent warm border */
+  --border-2: #C9B99A;
+  /* darker border */
 
   /* Accent */
-  --accent: #C9B99A;
-  /* warm beige accent */
-  --accent-2: #9E8C74;
-  /* darker beige / hover accent */
+  --accent: #7A5C45;
+  /* muted brown accent */
+  --gold: #C6A76E;
+  /* dusty gold highlight */
 
-  /* Feedback */
-  --success: #2D7A4F;
-  --error: #B94040;
-  --warning: #B86B14;
+  /* Feedbacks (Harmonized) */
+  --success: #6B8E23;
+  --error: #9E2A2B;
+  --warning: #B08968;
 
   /* Radii */
-  --radius-sm: 2px;
-  --radius: 4px;
-  --radius-lg: 8px;
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 18px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(20, 20, 20, .06), 0 1px 2px rgba(20, 20, 20, .04);
-  --shadow: 0 2px 8px rgba(20, 20, 20, .08), 0 1px 3px rgba(20, 20, 20, .05);
-  --shadow-lg: 0 8px 24px rgba(20, 20, 20, .10), 0 3px 8px rgba(20, 20, 20, .06);
+  /* Shadows (Subtle Luxury) */
+  --shadow-sm: 0 1px 2px rgba(47, 36, 29, 0.05);
+  --shadow: 0 4px 12px rgba(47, 36, 29, 0.08);
+  --shadow-lg: 0 12px 32px rgba(47, 36, 29, 0.12);
 }
 
 /* ─── Base Reset ─────────────────────────────────────────────────────── */
