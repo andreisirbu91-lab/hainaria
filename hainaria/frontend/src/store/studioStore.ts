@@ -7,6 +7,12 @@ export interface Garment {
     price: number;
     imageUrl: string;
     garmentType: string;
+    tryOnConfig?: {
+        anchorX: number;
+        anchorY: number;
+        scale: number;
+        rotationDeg: number;
+    };
 }
 
 interface StudioState {
@@ -38,8 +44,8 @@ export const useStudioStore = create<StudioState>((set) => ({
     avatarId: null,
     originalUrl: null,
     cutoutUrl: null,
-    garments: [],
-    aiResultUrl: null,
+    garments: [], // Toate produsele selectate (pt coș)
+    aiResultUrl: null, // Rezultatul de la haine (AI)
     isProcessingAI: false,
 
     setAvatar: (id, original, cutout) => set({
@@ -48,9 +54,10 @@ export const useStudioStore = create<StudioState>((set) => ({
         cutoutUrl: getFullUrl(cutout) as string
     }),
     addGarment: (g) => set((state) => {
-        const existing = state.garments.filter(old => old.garmentType !== g.garmentType);
+        // Înlocuim produsul de același tip (prevent multiple hats)
+        const filtered = state.garments.filter(old => old.garmentType !== g.garmentType);
         const processedG = { ...g, imageUrl: getFullUrl(g.imageUrl) as string };
-        return { garments: [...existing, processedG] };
+        return { garments: [...filtered, processedG] };
     }),
     removeGarment: (id) => set((state) => ({ garments: state.garments.filter(g => g.id !== id) })),
     setAiResultUrl: (url) => set({ aiResultUrl: url }),

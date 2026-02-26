@@ -26,39 +26,51 @@ export default function ProductDrawer() {
         }
 
         setProcessingId(p.id);
-        setIsProcessingAI(true);
-        setAiResultUrl(null);
+
+        // Only trigger full AI loading overlay if it's NOT an accessory
+        const isAI = conf.garmentType !== 'ACCESSORY' && conf.garmentType !== 'SHOES';
+        if (isAI) {
+            setIsProcessingAI(true);
+            setAiResultUrl(null);
+        }
 
         try {
-            // Asigurăm cutout-ul local
-            await api.post(`/studio/product-cutout/${p.id}`);
+            // Asigurăm cutout-ul local (pentru probe)
+            const cutoutRes = await api.post(`/studio/product-cutout/${p.id}`);
+            const finalCutoutUrl = cutoutRes.data.cutoutUrl;
 
             const newLayer: Garment = {
                 id: 'layer-' + Date.now(),
                 productId: p.id,
                 title: p.title,
                 price: p.price,
-                imageUrl: p.imageUrl,
-                garmentType: conf.garmentType
+                imageUrl: finalCutoutUrl || p.imageUrl, // Folosim decupajul dacă există
+                garmentType: conf.garmentType,
+                tryOnConfig: conf
             };
             addGarment(newLayer);
 
-            // Trigger AI Generation
+            // Trigger Backend Logic
             const vtonRes = await api.post('/studio/generate-vton', {
                 avatarId,
                 productId: p.id
             });
 
             if (vtonRes.data.ok && vtonRes.data.data.resultUrl) {
-                setAiResultUrl(vtonRes.data.data.resultUrl);
+                // Dacă e haină, înlocuim baza AI. Dacă e accesoriu, ignorăm (rămâne overlay-ul pus deja)
+                if (!vtonRes.data.data.isAccessory) {
+                    setAiResultUrl(vtonRes.data.data.resultUrl);
+                }
             }
 
         } catch (err) {
-            console.error('Eroare AI Generative Try-On:', err);
-            alert('Generarea a eșuat (posibil timp de așteptare prea mare). Încearcă din nou.');
+            console.error('Eroare Try-On:', err);
+            alert('Procesarea a eșuat. Încearcă din nou.');
         } finally {
             setProcessingId(null);
-            setIsProcessingAI(false);
+            if (isAI) {
+                setIsProcessingAI(false);
+            }
         }
     };
 
