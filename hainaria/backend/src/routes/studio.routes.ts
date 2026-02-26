@@ -220,9 +220,25 @@ router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Res
             return res.status(400).json({ ok: false, message: 'Produsul nu are decupaj valid pt procesare AI.' });
         }
 
+        // --- NEW: Filter out non-clothing items ---
+        if (conf.garmentType === 'ACCESSORY' || conf.garmentType === 'SHOES') {
+            console.log('[Studio] Skipping AI for non-clothing item:', conf.garmentType);
+            // Pentru accesorii, doar returnam imaginea decupată a produsului, 
+            // iar front-end-ul se va ocupa de suprapunere sau afișaj simplu.
+            return res.status(200).json({
+                ok: true,
+                data: {
+                    resultUrl: conf.cutoutUrl,
+                    isAccessory: true,
+                    message: "Accesoriile sunt vizualizate fară procesare AI momentan."
+                }
+            });
+        }
+
         let category = 'upper_body';
         if (conf.garmentType === 'BOTTOM') category = 'lower_body';
         else if (conf.garmentType === 'DRESS') category = 'dresses';
+        else if (conf.garmentType === 'OUTER' || conf.garmentType === 'TOP') category = 'upper_body';
 
         console.log('[Studio] Category mapped:', { category, garmentType: conf.garmentType });
 
@@ -269,8 +285,8 @@ router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Res
         }
 
         const getBase64DataURI = (file: string) => {
-            const ext = path.extname(file).toLowerCase();
-            const mime = ext === '.png' ? 'image/png' : (ext === '.webp' ? 'image/webp' : 'image/jpeg');
+            const actualExt = path.extname(file).toLowerCase();
+            const mime = actualExt === '.png' ? 'image/png' : (actualExt === '.webp' ? 'image/webp' : 'image/jpeg');
             const b64 = fs.readFileSync(file, { encoding: 'base64' });
             return `data:${mime};base64,${b64}`;
         };
@@ -317,6 +333,37 @@ router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Res
             resultUrl = String(output[0]);
         } else {
             resultUrl = String(output);
+        }
+
+        // --- NEW: Post-process result to remove background again (to keep it clean) ---
+        try {
+            console.log('[Studio] Post-processing AI result to remove background:', resultUrl);
+            const axios = require('axios');
+            const imgRes = await axios.get(resultUrl, { responseType: 'arraybuffer' });
+
+            const timestamp = Date.now();
+            const resultDir = path.join(__dirname, '../../uploads/results');
+            if (!fs.existsSync(resultDir)) fs.mkdirSync(resultDir, { recursive: true });
+
+            const tmpInput = path.join(resultDir, `ai-in-${timestamp}.png`);
+            const finalCleanOutput = path.join(resultDir, `ai-out-${timestamp}.png`);
+
+            fs.writeFileSync(tmpInput, imgRes.data);
+
+            const pyScript = path.join(__dirname, '../../py/remove_bg.py');
+            const pythonPath = fs.existsSync('/opt/venv/bin/python3') ? '/opt/venv/bin/python3' : 'python3';
+            const command = `${pythonPath} ${pyScript} "${tmpInput}" "${finalCleanOutput}"`;
+
+            await execPromise(command, { maxBuffer: 10 * 1024 * 1024 });
+
+            // If success, we serve the local clean version
+            if (fs.existsSync(finalCleanOutput)) {
+                fs.unlinkSync(tmpInput);
+                const localResultUrl = `/uploads/results/ai-out-${timestamp}.png`;
+                return res.status(200).json({ ok: true, data: { resultUrl: localResultUrl } });
+            }
+        } catch (postErr) {
+            console.warn('[Studio] Post-processing AI result failed, falling back to original Replicate URL:', postErr);
         }
 
         return res.status(200).json({ ok: true, data: { resultUrl } });
