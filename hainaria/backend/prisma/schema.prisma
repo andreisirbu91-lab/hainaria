@@ -14,6 +14,8 @@ model User {
   createdAt    DateTime     @default(now())
   avatars      UserAvatar[]
   looks        TryOnLook[]
+  sessions     TryOnSession[]
+  orders       Order[]
 }
 
 model Product {
@@ -30,6 +32,7 @@ model Product {
   isTryOnCutout Boolean             @default(false)
   createdAt     DateTime            @default(now())
   tryOnConfig   ProductTryOnConfig?
+  orderItems    OrderItem[]
 }
 
 enum GarmentType {
@@ -63,6 +66,86 @@ model ProductTryOnConfig {
   anchorY     Float
   scale       Float
   rotationDeg Float       @default(0)
+}
+
+enum TryOnStatus {
+  CREATED
+  UPLOADED               // Poză brută urcată
+  BG_REMOVAL_QUEUED      // În coadă pentru remove.bg
+  BG_REMOVAL_DONE        // Fundal scos cu succes
+  READY_FOR_TRYON        // Om decupat, gata de probă
+  TRYON_QUEUED           // În coadă pentru Replicate
+  TRYON_DONE             // Imagine generată AI
+  IN_CART                // Adăugat în coș
+  CHECKOUT_STARTED
+  PAID
+  COMPLETED
+  FAILED
+}
+
+model TryOnSession {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  status      TryOnStatus   @default(CREATED)
+  
+  // Assets linked to this session
+  assets      TryOnAsset[]
+  jobs        TryOnJob[]
+  
+  currentResultUrl String?   // Ultima imagine generată/procesată
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  orderId     String?
+  order       Order?        @relation(fields: [orderId], references: [id])
+}
+
+model TryOnAsset {
+  id          String        @id @default(cuid())
+  sessionId   String
+  session     TryOnSession  @relation(fields: [sessionId], references: [id])
+  type        String        // 'RAW', 'CUTOUT', 'RESULT'
+  url         String
+  createdAt   DateTime      @default(now())
+}
+
+model TryOnJob {
+  id          String        @id @default(cuid())
+  sessionId   String
+  session     TryOnSession  @relation(fields: [sessionId], references: [id])
+  type        String        // 'BG_REMOVAL', 'AI_TRYON'
+  status      String        // 'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'
+  payload     Json?
+  result      Json?
+  error       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Order {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  totalAmount Float
+  status      String        // 'PENDING', 'PAID', 'SHIPPED'
+  stripeId    String?       @unique
+  
+  items       OrderItem[]
+  sessions    TryOnSession[] // Sesiunile de probă care au dus la această comandă
+  
+  createdAt   DateTime      @default(now())
+}
+
+model OrderItem {
+  id          String        @id @default(cuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id])
+  productId   String
+  product     Product       @relation(fields: [productId], references: [id])
+  price       Float
+  quantity    Int           @default(1)
 }
 
 model TryOnLook {

@@ -8,6 +8,7 @@ import userRoutes from './routes/user.routes';
 import orderRoutes from './routes/order.routes';
 import studioRoutes from './routes/studio.routes';
 import avatarRoutes from './routes/avatar.routes';
+import tryonRoutes from './routes/tryon.routes';
 import path from 'path';
 
 dotenv.config();
@@ -47,6 +48,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/studio', studioRoutes);
 app.use('/api/avatars', avatarRoutes);
+app.use('/api/tryon', tryonRoutes);
 
 // Static uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

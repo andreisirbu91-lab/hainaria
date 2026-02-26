@@ -29,46 +29,15 @@ export default function StudioPage() {
 
                     {/* Stepper */}
                     <div className="flex items-center justify-between max-w-2xl">
-                        {steps.map((s, index) => (
-                            <div key={s.id} className="flex flex-col items-center gap-2 flex-1 relative">
-                                <div
-                                    className="w-8 h-8 rounded-full border flex items-center justify-center text-xs font-bold transition-colors z-10"
-                                    style={{
-                                        borderColor: currentStep >= s.id ? 'var(--text)' : 'var(--border)',
-                                        background: currentStep >= s.id ? 'var(--text)' : 'var(--surface)',
-                                        color: currentStep >= s.id ? 'var(--bg)' : 'var(--muted)'
-                                    }}
-                                >
-                                    {s.id}
-                                </div>
-                                <span
-                                    className="text-[10px] uppercase tracking-widest text-center"
-                                    style={{ color: currentStep >= s.id ? 'var(--text)' : 'var(--muted)' }}
-                                >
-                                    {s.label}
-                                </span>
-                                {/* Line connector */}
-                                {index < steps.length - 1 && (
-                                    <div
-                                        className="absolute top-4 left-1/2 w-full h-[1px] -z-0"
-                                        style={{ background: currentStep > s.id ? 'var(--text)' : 'var(--border)' }}
-                                    />
-                                )}
+                        <div className="container-custom pt-8 pb-20 min-h-screen">
+                            <div className="flex flex-col gap-2 mb-12">
+                                <h1 className="section-title">Studio AI</h1>
+                                <p className="section-subtitle">
+                                    Transformă-ți ideile în ținute reale folosind puterea inteligenței artificiale.
+                                </p>
                             </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col items-center">
-                <div className="w-full flex-1 flex flex-col mt-4">
-                    {currentStep === 1 && <Step1Upload onNext={goToNext} />}
-                    {currentStep === 2 && <Step3Outfit onNext={goToNext} onPrev={goToPrev} />}
-                    {currentStep === 3 && <Step4Export onPrev={goToPrev} />}
-                </div>
-            </div>
-
-        </div>
-    );
+                            <TryOnWizard />
+                        </div>
+                        );
 }
