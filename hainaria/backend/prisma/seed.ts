@@ -25,6 +25,21 @@ async function main() {
         console.log('✓ Seeded Admin User: admin@site.com / ChangeMe123!');
     }
 
+    // 1.5 Seed Demo User for TryOn
+    const demoEmail = 'demo@hainaria.ro';
+    const existingDemo = await prisma.user.findUnique({ where: { email: demoEmail } });
+    if (!existingDemo) {
+        const passwordHash = await bcrypt.hash('Demo123!', 10);
+        await prisma.user.create({
+            data: {
+                id: 'demo_user_id',
+                email: demoEmail,
+                passwordHash
+            }
+        });
+        console.log('✓ Seeded Demo User for TryOn');
+    }
+
     // 2. Clean existing dynamic data (but keep users/products if possible or clean for fresh start)
     console.log('Cleaning existing data...');
     await prisma.contentBlock.deleteMany();
@@ -80,10 +95,10 @@ async function main() {
                     slides: [
                         {
                             image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1600',
-                            title: 'Eleganță Atemporală',
-                            subtitle: 'Descoperă noua noastră colecție de toamnă, curatoriată pentru tine.',
-                            ctaText: 'Explorează Acum',
-                            ctaLink: '/shop'
+                            title: 'Studio Virtual Try-On',
+                            subtitle: 'Vizualizează cum prind viață piesele tale preferate. Îmbină tehnologia AI cu stilul personal pentru a găsi ținuta perfectă înainte de achiziție.',
+                            ctaText: 'Probează ținutele cu AI',
+                            ctaLink: '/studio'
                         }
                     ]
                 }
@@ -171,6 +186,7 @@ const products = [
     { title: 'Rochie Midi Cărămizie de Toamnă', brand: 'Hainaria Select', price: 240, category: 'Rochii', condition: 'Nou cu etichetă', tag: 'NEW' },
     { title: 'Cardigan Lână Merino Bej', brand: 'Mango Premium', price: 185, category: 'Pulovere', condition: 'Foarte bun' },
     { title: 'Palton Lână Oversize Camel', brand: 'Zara Studio', price: 420, category: 'Geci', condition: 'Nou cu etichetă', tag: 'LUXURY' },
+    { title: 'Tricou Bumbac Basic Alb', brand: 'H&M Basic', price: 45, category: 'Tricouri', condition: 'Nou' },
     { title: 'Blugi Mom Fit Vintage', brand: 'Levi\'s', price: 155, category: 'Blugi', condition: 'Foarte bun' },
     { title: 'Poșetă Piele Cognac', brand: 'Boutique Italy', price: 310, category: 'Accesorii', condition: 'Nou cu etichetă' },
     { title: 'Rochie de Seară Smarald', brand: 'H&M Conscious', price: 195, category: 'Rochii', condition: 'Excelent', tag: 'TRENDING' },
@@ -184,6 +200,7 @@ function getProductImage(cat: string) {
         'Rochii': 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=600',
         'Pulovere': 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=600',
         'Geci': 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&q=80&w=600',
+        'Tricouri': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600',
         'Blugi': 'https://images.unsplash.com/photo-1604176354204-9268737828e4?auto=format&fit=crop&q=80&w=600',
         'Accesorii': 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&q=80&w=600',
     };

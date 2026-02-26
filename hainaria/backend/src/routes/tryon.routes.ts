@@ -1,6 +1,7 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { PrismaClient, TryOnStatus } from '@prisma/client';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
+import jwt from 'jsonwebtoken';
 import { bgQueue, tryOnQueue } from '../services/bull.service';
 import multer from 'multer';
 import path from 'path';
@@ -10,8 +11,26 @@ const router = Router();
 const prisma = new PrismaClient();
 const upload = multer({ dest: 'uploads/raw/' });
 
+export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction): void => {
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token, process.env.JWT_SECRET || 'secret', (err, user) => {
+            if (!err) {
+                req.user = user as { userId: string; role: string };
+            } else {
+                req.user = { userId: 'demo_user_id', role: 'USER' };
+            }
+            next();
+        });
+    } else {
+        req.user = { userId: 'demo_user_id', role: 'USER' };
+        next();
+    }
+};
+
 // 1. Create Session
-router.post('/session', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
+router.post('/session', optionalAuth, async (req: AuthRequest, res: Response): Promise<any> => {
     const session = await prisma.tryOnSession.create({
         data: { userId: req.user!.userId }
     });
@@ -19,7 +38,7 @@ router.post('/session', authenticateJWT, async (req: AuthRequest, res: Response)
 });
 
 // 2. Upload Image
-router.post('/:id/upload', authenticateJWT, upload.single('image'), async (req: AuthRequest, res: Response): Promise<any> => {
+router.post('/:id/upload', optionalAuth, upload.single('image'), async (req: AuthRequest, res: Response): Promise<any> => {
     const id = req.params.id as string;
     if (!req.file) return res.status(400).json({ ok: false, message: 'No image uploaded' });
 
@@ -45,7 +64,7 @@ import { addTryOnJob } from '../queues/tryon.queue';
 // ... existing code ...
 
 // 3. Trigger BG Removal
-router.post('/:id/bg-remove', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
+router.post('/:id/bg-remove', optionalAuth, async (req: AuthRequest, res: Response): Promise<any> => {
     const id = req.params.id as string;
     const session = await prisma.tryOnSession.findUnique({
         where: { id },
@@ -81,7 +100,7 @@ router.post('/:id/bg-remove', authenticateJWT, async (req: AuthRequest, res: Res
 });
 
 // 4. Trigger AI Try-On
-router.post('/:id/try', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
+router.post('/:id/try', optionalAuth, async (req: AuthRequest, res: Response): Promise<any> => {
     const id = req.params.id as string;
     const { productId } = req.body; // Adjusted to single product for this specific worker implementation
 
@@ -139,7 +158,7 @@ router.post('/:id/try', authenticateJWT, async (req: AuthRequest, res: Response)
 });
 
 // 5. Status Polling
-router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
+router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response): Promise<any> => {
     const session = await prisma.tryOnSession.findUnique({
         where: { id: req.params.id as string },
         include: { assets: true, jobs: { orderBy: { createdAt: 'desc' }, take: 1 } }
