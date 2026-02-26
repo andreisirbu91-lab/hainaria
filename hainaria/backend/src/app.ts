@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
 import userRoutes from './routes/user.routes';
@@ -17,6 +18,7 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:80',
+    'https://hainaria.rzs-it.ro',
     process.env.FRONTEND_URL
 ].filter(Boolean) as string[];
 
@@ -51,9 +53,16 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
+    const files = fs.readdirSync(process.cwd());
+    const envKeys = Object.keys(process.env);
+
     res.status(200).json({
         ok: true,
         timestamp: new Date().toISOString(),
+        cwd: process.cwd(),
+        files: files.filter((f: string) => !f.startsWith('.')), // ascundem secretele dar vedem .env daca e acolo
+        hasDotEnv: fs.existsSync(path.join(process.cwd(), '.env')),
+        envKeys: envKeys.filter(k => k.includes('TOKEN') || k.includes('URL') || k.includes('PORT')),
         debug_tokenExists: !!process.env.REPLICATE_API_TOKEN,
         debug_tokenLength: process.env.REPLICATE_API_TOKEN ? process.env.REPLICATE_API_TOKEN.length : 0
     });
