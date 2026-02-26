@@ -29,39 +29,56 @@ router.get('/backgrounds', (_req: Request, res: Response): void => {
 router.post('/remove-bg', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
     try {
         const { avatarId } = req.body;
+        console.log('[Studio] remove-bg request:', { avatarId, userId: req.user!.userId });
         if (!avatarId) return res.status(400).json({ ok: false, message: 'Nu ai specificat avatarul (avatarId lipsă).' });
 
         const avatar = await prisma.userAvatar.findUnique({ where: { id: avatarId } });
-        if (!avatar || avatar.userId !== req.user!.userId) {
-            return res.status(404).json({ ok: false, message: 'Avatar negăsit.' });
+        if (!avatar) {
+            console.error('[Studio] Avatar not found in DB:', avatarId);
+            return res.status(404).json({ ok: false, message: `Avatar negăsit în baza de date (ID: ${avatarId}).` });
+        }
+
+        if (avatar.userId !== req.user!.userId) {
+            console.error('[Studio] Avatar ownership mismatch:', { avatarUserId: avatar.userId, requestUserId: req.user!.userId });
+            return res.status(403).json({ ok: false, message: 'Nu ai permisiunea de a modifica acest avatar.' });
         }
 
         if (avatar.cutoutUrl) {
-            // Already processed
             return res.status(200).json({ ok: true, data: avatar });
         }
 
         const filename = path.basename(avatar.originalUrl);
         const inputPath = path.join(__dirname, '../../uploads/avatars', filename);
         const ext = path.extname(filename);
-        const cutoutFilename = filename.replace(ext, '-cutout.png');
+        const cutoutFilename = filename.replace(ext, `-cutout-${Date.now()}.png`);
         const outputPath = path.join(__dirname, '../../uploads/avatars', cutoutFilename);
 
+        console.log('[Studio] Background removal paths:', { inputPath, outputPath, filename });
+
         if (!fs.existsSync(inputPath)) {
+            console.error('[Studio] Input file missing:', inputPath);
             return res.status(404).json({ ok: false, message: 'Imaginea originală nu există pe server.' });
         }
 
-        // Call Python rembg
+        // Call Python rembg via venv if exists
         const pyScript = path.join(__dirname, '../../py/remove_bg.py');
-        const command = `python3 ${pyScript} "${inputPath}" "${outputPath}"`;
+        const pythonPath = fs.existsSync('/opt/venv/bin/python3') ? '/opt/venv/bin/python3' : 'python3';
+        const command = `${pythonPath} ${pyScript} "${inputPath}" "${outputPath}"`;
+
+        console.log('[Studio] Executing command:', command);
 
         try {
-            await execPromise(command, { maxBuffer: 10 * 1024 * 1024 }); // 10MB buffer pt model download logs
+            const { stdout, stderr } = await execPromise(command, { maxBuffer: 10 * 1024 * 1024 });
+            console.log('[Studio] rembg stdout:', stdout);
+            if (stderr) console.warn('[Studio] rembg stderr:', stderr);
         } catch (pyErr: any) {
-            console.error('[rembg_error]', pyErr.stderr || pyErr.message);
-            // Ignore non-fatal stderr if output file was created anyway
+            console.error('[Studio] rembg execution error:', pyErr.stderr || pyErr.message);
             if (!fs.existsSync(outputPath)) {
-                return res.status(500).json({ ok: false, message: 'Eroare la eliminarea fundalului cu rembg: ' + (pyErr.stderr || pyErr.message).slice(0, 100) });
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Eroare la eliminarea fundalului: ' + (pyErr.stderr || pyErr.message).slice(0, 100),
+                    debug_command: command
+                });
             }
         }
 
@@ -180,17 +197,26 @@ router.post('/product-cutout/:id', authenticateJWT, async (req: AuthRequest, res
 router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Response): Promise<any> => {
     try {
         const { avatarId, productId } = req.body;
+        console.log('[Studio] generate-vton request:', { avatarId, productId, userId: req.user!.userId });
+
         if (!avatarId || !productId) {
             return res.status(400).json({ ok: false, message: 'Nu ai selectat avatarul sau produsul.' });
         }
 
         const avatar = await prisma.userAvatar.findUnique({ where: { id: avatarId } });
-        if (!avatar || avatar.userId !== req.user!.userId) {
-            return res.status(404).json({ ok: false, message: 'Avatar negăsit.' });
+        if (!avatar) {
+            console.error('[Studio] Avatar not found:', avatarId);
+            return res.status(404).json({ ok: false, message: 'Avatarul nu a fost găsit în baza de date.' });
+        }
+
+        if (avatar.userId !== req.user!.userId) {
+            console.error('[Studio] Avatar ownership mismatch:', { avatarUserId: avatar.userId, requestUserId: req.user!.userId });
+            return res.status(403).json({ ok: false, message: 'Nu ai permisiunea de a folosi acest avatar.' });
         }
 
         const conf = await prisma.productTryOnConfig.findUnique({ where: { productId } });
         if (!conf || !conf.cutoutUrl) {
+            console.error('[Studio] Product config missing or partial:', { productId, conf });
             return res.status(400).json({ ok: false, message: 'Produsul nu are decupaj valid pt procesare AI.' });
         }
 
@@ -198,11 +224,21 @@ router.post('/generate-vton', authenticateJWT, async (req: AuthRequest, res: Res
         if (conf.garmentType === 'BOTTOM') category = 'lower_body';
         else if (conf.garmentType === 'DRESS') category = 'dresses';
 
+        console.log('[Studio] Category mapped:', { category, garmentType: conf.garmentType });
+
         const avatarLocalPath = path.join(__dirname, '../..', avatar.originalUrl);
         const garmentLocalPath = path.join(__dirname, '../..', conf.cutoutUrl);
 
-        if (!fs.existsSync(avatarLocalPath) || !fs.existsSync(garmentLocalPath)) {
-            return res.status(404).json({ ok: false, message: 'Imaginile necesare nu există pe server.' });
+        console.log('[Studio] AI Try-on paths:', { avatarLocalPath, garmentLocalPath });
+
+        if (!fs.existsSync(avatarLocalPath)) {
+            console.error('[Studio] Avatar file missing on disk:', avatarLocalPath);
+            return res.status(404).json({ ok: false, message: 'Imaginea avatarului a dispărut de pe server.' });
+        }
+
+        if (!fs.existsSync(garmentLocalPath)) {
+            console.error('[Studio] Garment file missing on disk:', garmentLocalPath);
+            return res.status(404).json({ ok: false, message: 'Imaginea decupată a produsului a dispărut de pe server.' });
         }
 
         const getBase64DataURI = (file: string) => {
