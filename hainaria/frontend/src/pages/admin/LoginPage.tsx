@@ -5,16 +5,22 @@ import { useAdminAuthStore } from '../../store/adminAuthStore';
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login, error, isLoading } = useAdminAuthStore();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [localError, setLocalError] = useState('');
+    const { login } = useAdminAuthStore();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setLocalError('');
         try {
             await login(email, password);
             navigate('/admin');
-        } catch (err) {
-            // Error is handled in store
+        } catch (err: any) {
+            setLocalError(err?.response?.data?.message || 'Login failed');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -50,18 +56,18 @@ export default function LoginPage() {
                         />
                     </div>
 
-                    {error && (
+                    {localError && (
                         <div className="bg-red-50 text-red-500 text-xs p-3 rounded-lg font-bold italic">
-                            {error}
+                            {localError}
                         </div>
                     )}
 
                     <button
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isSubmitting}
                         className="w-full bg-black text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
                     >
-                        {isLoading ? 'Se procesează...' : 'Autentificare'}
+                        {isSubmitting ? 'Se procesează...' : 'Autentificare'}
                     </button>
                 </form>
 
