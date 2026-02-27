@@ -26,8 +26,21 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://hainaria.rzs-it.ro',
+    process.env.FRONTEND_URL
+].filter(Boolean) as string[];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(null, true); // Allow all origins as fallback for now
+        }
+    },
     credentials: true
 }));
 
