@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
 import { Instagram, Facebook, Mail, Phone, MapPin } from 'lucide-react';
+import Logo from '../ui/Logo';
 
 interface FooterColumn {
     title: string;
@@ -58,13 +59,8 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-24">
                     {/* Brand Section */}
                     <div className="lg:col-span-2">
-                        <Link to="/" className="flex items-center gap-2 mb-8">
-                            <span className="text-2xl font-bold tracking-tight text-hainaria-text" style={{ fontFamily: 'Playfair Display, serif' }}>
-                                H<span style={{ letterSpacing: '-0.05em' }}>N</span>
-                            </span>
-                            <span className="text-xs font-bold uppercase tracking-[0.3em] text-hainaria-muted">
-                                {settings?.storeName || 'Hainăria'}
-                            </span>
+                        <Link to="/" className="mb-8 block">
+                            <Logo size="lg" />
                         </Link>
                         <p className="text-hainaria-muted text-sm leading-relaxed max-w-sm mb-10">
                             Curatorii tăi de modă sustenabilă. Descoperă piese unice, verificate și pregătite pentru o nouă viață. Eleganță fără compromisuri.

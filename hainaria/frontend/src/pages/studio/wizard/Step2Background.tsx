@@ -4,6 +4,8 @@ import { Scissors, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function Step2Background() {
     const { session, startBgRemove } = useTryOnStore();
+    const [isProcessing, setIsProcessing] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
 
     const isQueued = session?.status === 'BG_REMOVAL_QUEUED';
     const rawImage = session?.assets.find(a => a.type === 'RAW')?.url;
@@ -56,13 +58,32 @@ export default function Step2Background() {
                     </div>
 
                     {!isQueued && (
-                        <button
-                            onClick={startBgRemove}
-                            className="w-full bg-black text-white py-6 rounded-2xl font-black italic uppercase tracking-widest text-sm hover:scale-[1.02] shadow-xl hover:shadow-black/20 transition-all flex items-center justify-center gap-4 group"
-                        >
-                            <Scissors className="group-hover:rotate-12 transition-transform" />
-                            Începe Decuparea
-                        </button>
+                        <>
+                            <button
+                                onClick={async () => {
+                                    setIsProcessing(true);
+                                    setError(null);
+                                    try {
+                                        await startBgRemove();
+                                    } catch (err: any) {
+                                        setError(err?.response?.data?.message || 'Decuparea a eșuat. Încearcă din nou.');
+                                    } finally {
+                                        setIsProcessing(false);
+                                    }
+                                }}
+                                disabled={isProcessing}
+                                className="w-full bg-black text-white py-6 rounded-2xl font-black italic uppercase tracking-widest text-sm hover:scale-[1.02] shadow-xl hover:shadow-black/20 transition-all flex items-center justify-center gap-4 group disabled:opacity-60 disabled:cursor-wait"
+                            >
+                                {isProcessing ? (
+                                    <><Loader2 className="animate-spin" size={20} /> Se procesează...</>
+                                ) : (
+                                    <><Scissors className="group-hover:rotate-12 transition-transform" /> Începe Decuparea</>
+                                )}
+                            </button>
+                            {error && (
+                                <p className="text-red-500 text-xs font-bold text-center mt-2">{error}</p>
+                            )}
+                        </>
                     )}
                 </div>
             </div>

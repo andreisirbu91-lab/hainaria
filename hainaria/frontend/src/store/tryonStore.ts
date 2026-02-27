@@ -109,11 +109,13 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
     startBgRemove: async () => {
         const id = get().sessionId;
         if (!id) return;
+        set({ isLoading: true, error: null });
         try {
             await api.post(`/tryon/${id}/bg-remove`);
             await get().fetchSession(id);
         } catch (err) {
-            set({ error: 'BG Removal failed' });
+            set({ error: 'BG Removal failed', isLoading: false });
+            throw err; // Re-throw so UI can catch it
         }
     },
 

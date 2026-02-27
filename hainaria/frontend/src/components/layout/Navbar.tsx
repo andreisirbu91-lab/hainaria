@@ -4,6 +4,7 @@ import { ShoppingBag, User, LogOut, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import api from '../../lib/api';
+import Logo from '../ui/Logo';
 
 export default function Navbar() {
     const { user, logout } = useAuthStore();
@@ -59,17 +60,9 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
                 <div className="flex justify-between items-center h-20">
 
-                    {/* Logo (Centered or Left) */}
-                    <Link
-                        to="/"
-                        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                    >
-                        <span className="text-xl font-bold tracking-tight text-hainaria-text" style={{ fontFamily: 'Playfair Display, serif' }}>
-                            H<span style={{ letterSpacing: '-0.05em' }}>N</span>
-                        </span>
-                        <span className="hidden sm:inline text-[10px] font-bold uppercase tracking-[0.3em] text-hainaria-muted">
-                            {settings?.storeName || 'Hainăria'}
-                        </span>
+                    {/* Logo */}
+                    <Link to="/" className="hover:opacity-80 transition-opacity">
+                        <Logo size="sm" />
                     </Link>
 
                     {/* Desktop nav */}
