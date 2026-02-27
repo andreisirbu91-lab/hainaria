@@ -40,7 +40,7 @@ export default function SettingsEditor() {
     const handleSave = async () => {
         try {
             setSaving(true);
-            await api.put('/admin/settings', settings);
+            await api.patch('/admin/settings', settings);
             showToast('Setări salvate cu succes');
         } catch (err) {
             showToast('Eroare la salvare', 'error');

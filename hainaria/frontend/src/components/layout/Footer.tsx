@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../lib/api';
-import { Instagram, Facebook, Twitter, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, Facebook, Mail, Phone, MapPin } from 'lucide-react';
 
 interface FooterColumn {
     title: string;
@@ -58,16 +58,20 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-24">
                     {/* Brand Section */}
                     <div className="lg:col-span-2">
-                        <Link to="/" className="text-2xl font-serif italic text-hainaria-text mb-8 block">
-                            Hainaria
+                        <Link to="/" className="flex items-center gap-2 mb-8">
+                            <span className="text-2xl font-bold tracking-tight text-hainaria-text" style={{ fontFamily: 'Playfair Display, serif' }}>
+                                H<span style={{ letterSpacing: '-0.05em' }}>N</span>
+                            </span>
+                            <span className="text-xs font-bold uppercase tracking-[0.3em] text-hainaria-muted">
+                                {settings?.storeName || 'Hainăria'}
+                            </span>
                         </Link>
                         <p className="text-hainaria-muted text-sm leading-relaxed max-w-sm mb-10">
                             Curatorii tăi de modă sustenabilă. Descoperă piese unice, verificate și pregătite pentru o nouă viață. Eleganță fără compromisuri.
                         </p>
                         <div className="flex items-center gap-4 text-hainaria-text/60">
-                            <a href="#" className="hover:text-hainaria-accent transition-colors"><Instagram size={20} /></a>
-                            <a href="#" className="hover:text-hainaria-accent transition-colors"><Facebook size={20} /></a>
-                            <a href="#" className="hover:text-hainaria-accent transition-colors"><Twitter size={20} /></a>
+                            {settings?.instagramUrl && <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:text-hainaria-accent transition-colors"><Instagram size={20} /></a>}
+                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-hainaria-accent transition-colors"><Facebook size={20} /></a>
                         </div>
                     </div>
 
@@ -96,15 +100,18 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="pt-12 border-t border-hainaria-border flex flex-col md:flex-row justify-between items-center gap-6">
                     <p className="text-[10px] text-hainaria-muted uppercase tracking-widest">
-                        © {new Date().getFullYear()} Hainaria Store. Toate drepturile rezervate.
+                        © {new Date().getFullYear()} {settings?.storeName || 'Hainaria'}. Toate drepturile rezervate.
                     </p>
                     <div className="flex items-center gap-8 text-[10px] text-hainaria-muted uppercase tracking-widest">
-                        <span className="flex items-center gap-2">
-                            <MapPin size={12} className="text-hainaria-gold" /> București, România
-                        </span>
-                        <span className="flex items-center gap-2">
-                            <Phone size={12} className="text-hainaria-gold" /> +40 700 000 000
-                        </span>
+                        {settings?.address && <span className="flex items-center gap-2">
+                            <MapPin size={12} className="text-hainaria-gold" /> {settings.address}
+                        </span>}
+                        {settings?.contactPhone && <span className="flex items-center gap-2">
+                            <Phone size={12} className="text-hainaria-gold" /> {settings.contactPhone}
+                        </span>}
+                        {settings?.contactEmail && <span className="flex items-center gap-2">
+                            <Mail size={12} className="text-hainaria-gold" /> {settings.contactEmail}
+                        </span>}
                     </div>
                 </div>
             </div>

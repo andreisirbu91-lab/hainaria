@@ -53,12 +53,14 @@ async function main() {
     // 3. Seed Global Settings (Autumn Feminine)
     await prisma.settingsStore.create({
         data: {
-            storeName: 'Hainaria',
+            storeName: 'Hainăria',
             accentColor: '#7A5C45',
             highlightColor: '#C6A76E',
             borderRadius: 18,
             contactEmail: 'contact@hainaria.ro',
             contactPhone: '+40 700 000 000',
+            address: 'București, România',
+            instagramUrl: 'https://instagram.com/hainaria',
             menuItems: [
                 { label: 'Colecție', href: '/shop' },
                 { label: 'Studio VTO', href: '/studio' },

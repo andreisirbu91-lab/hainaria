@@ -203,6 +203,7 @@ model SettingsStore {
   contactEmail     String?
   contactPhone     String?
   address          String?
+  instagramUrl     String?
   
   // Navigation
   menuItems        Json?    // Array of { label, href, order }

@@ -36,7 +36,7 @@ export default function Navbar() {
 
     const isActive = (path: string) => location.pathname === path;
 
-    const navItems = settings?.mainNavigation || [
+    const navItems = settings?.menuItems || [
         { label: 'Colecție', href: '/shop' },
         { label: 'Studio VTO', href: '/studio' },
     ];
@@ -62,9 +62,14 @@ export default function Navbar() {
                     {/* Logo (Centered or Left) */}
                     <Link
                         to="/"
-                        className="text-xl font-serif italic text-hainaria-text hover:text-hainaria-accent transition-colors"
+                        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                     >
-                        Hainaria
+                        <span className="text-xl font-bold tracking-tight text-hainaria-text" style={{ fontFamily: 'Playfair Display, serif' }}>
+                            H<span style={{ letterSpacing: '-0.05em' }}>N</span>
+                        </span>
+                        <span className="hidden sm:inline text-[10px] font-bold uppercase tracking-[0.3em] text-hainaria-muted">
+                            {settings?.storeName || 'Hainăria'}
+                        </span>
                     </Link>
 
                     {/* Desktop nav */}

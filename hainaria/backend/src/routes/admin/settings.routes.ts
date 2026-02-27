@@ -7,7 +7,7 @@ import { z } from 'zod';
 const router = Router();
 
 const settingsSchema = z.object({
-    storeName: z.string().min(1),
+    storeName: z.string().min(1).optional(),
     logoAssetId: z.string().optional().nullable(),
     faviconAssetId: z.string().optional().nullable(),
 
@@ -23,16 +23,17 @@ const settingsSchema = z.object({
 
     // Footer & Contact
     footerColumns: z.any().optional(),
-    contactEmail: z.string().email().optional().nullable(),
+    contactEmail: z.string().optional().nullable(),
     contactPhone: z.string().optional().nullable(),
     address: z.string().optional().nullable(),
+    instagramUrl: z.string().optional().nullable(),
 
     // Navigation
     menuItems: z.any().optional(),
 
     shippingRules: z.any().optional(),
     taxConfig: z.any().optional()
-});
+}).passthrough();
 
 // Get settings
 router.get('/', authenticateAdmin, async (req: Request, res: Response) => {
