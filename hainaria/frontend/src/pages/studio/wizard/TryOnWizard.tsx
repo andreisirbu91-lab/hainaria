@@ -17,11 +17,9 @@ export default function TryOnWizard() {
         }
     }, []);
 
-    if (!session && isLoading) {
+    if (!session) {
         return <div className="py-20 text-center animate-pulse italic text-gray-400">Inițializare sesiune de probă...</div>;
     }
-
-    if (!session) return null;
 
     const renderStep = () => {
         switch (session.status) {

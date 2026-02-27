@@ -1,0 +1,60 @@
+2026-02-21 13:25:01.161 EET [677705] LOG:  starting PostgreSQL 18.1 (Debian 18.1-2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 15.2.0-11) 15.2.0, 64-bit
+2026-02-21 13:25:01.164 EET [677705] LOG:  listening on IPv6 address "::1", port 5433
+2026-02-21 13:25:01.164 EET [677705] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-02-21 13:25:01.169 EET [677705] FATAL:  could not create lock file "/var/run/postgresql/.s.PGSQL.5433.lock": Permission denied
+2026-02-21 13:25:01.173 EET [677705] LOG:  database system is shut down
+2026-02-21 13:25:19.549 EET [678461] LOG:  starting PostgreSQL 18.1 (Debian 18.1-2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 15.2.0-11) 15.2.0, 64-bit
+2026-02-21 13:25:19.551 EET [678461] LOG:  listening on IPv6 address "::1", port 5433
+2026-02-21 13:25:19.551 EET [678461] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-02-21 13:25:19.557 EET [678461] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-02-21 13:25:19.582 EET [678467] LOG:  database system was shut down at 2026-02-21 13:20:15 EET
+2026-02-21 13:25:19.607 EET [678461] LOG:  database system is ready to accept connections
+2026-02-21 13:25:21.707 EET [678493] FATAL:  database "samsepi0l" does not exist
+2026-02-21 13:30:19.974 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 13:32:15.961 EET [678465] LOG:  checkpoint complete: wrote 994 buffers (6.1%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=114.457 s, sync=0.684 s, total=115.994 s; sync files=328, longest=0.012 s, average=0.003 s; distance=4666 kB, estimate=4666 kB; lsn=0/1BF4C18, redo lsn=0/1BEDE48
+2026-02-21 13:35:20.060 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 13:35:21.119 EET [678465] LOG:  checkpoint complete: wrote 10 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=1.016 s, sync=0.016 s, total=1.059 s; sync files=7, longest=0.006 s, average=0.003 s; distance=35 kB, estimate=4203 kB; lsn=0/1BF6DD0, redo lsn=0/1BF6D78
+2026-02-21 13:40:20.218 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 13:40:22.985 EET [678465] LOG:  checkpoint complete: wrote 16 buffers (0.1%), wrote 1 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=1.623 s, sync=0.025 s, total=2.749 s; sync files=10, longest=0.007 s, average=0.003 s; distance=109 kB, estimate=3793 kB; lsn=0/1C125A0, redo lsn=0/1C12548
+2026-02-21 13:50:25.329 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 13:50:45.414 EET [678465] LOG:  checkpoint complete: wrote 62 buffers (0.4%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=17.861 s, sync=0.391 s, total=20.096 s; sync files=53, longest=0.255 s, average=0.008 s; distance=299 kB, estimate=3444 kB; lsn=0/1C5D300, redo lsn=0/1C5D270
+2026-02-21 13:55:25.516 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 13:55:25.668 EET [678465] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.103 s, sync=0.009 s, total=0.156 s; sync files=1, longest=0.009 s, average=0.009 s; distance=3 kB, estimate=3100 kB; lsn=0/1C5DED0, redo lsn=0/1C5DE78
+2026-02-21 14:00:25.775 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 14:00:27.677 EET [678465] LOG:  checkpoint complete: wrote 17 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=1.729 s, sync=0.030 s, total=1.903 s; sync files=13, longest=0.008 s, average=0.003 s; distance=62 kB, estimate=2796 kB; lsn=0/1C6D748, redo lsn=0/1C6D6F0
+2026-02-21 14:10:26.008 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 14:10:28.617 EET [678465] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=1.870 s, sync=0.017 s, total=2.671 s; sync files=2, longest=0.014 s, average=0.009 s; distance=11 kB, estimate=2517 kB; lsn=0/1C70500, redo lsn=0/1C704A8
+2026-02-21 14:20:25.816 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 14:20:26.544 EET [678465] LOG:  checkpoint complete: wrote 5 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.669 s, sync=0.013 s, total=0.746 s; sync files=5, longest=0.007 s, average=0.003 s; distance=3 kB, estimate=2266 kB; lsn=0/1C71458, redo lsn=0/1C71400
+2026-02-21 14:25:25.662 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 14:25:26.493 EET [678465] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.692 s, sync=0.019 s, total=0.839 s; sync files=4, longest=0.008 s, average=0.005 s; distance=1 kB, estimate=2040 kB; lsn=0/1C719D0, redo lsn=0/1C71978
+2026-02-21 14:30:25.622 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 14:30:26.297 EET [678465] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.524 s, sync=0.026 s, total=0.692 s; sync files=4, longest=0.010 s, average=0.006 s; distance=1 kB, estimate=1836 kB; lsn=0/1C72088, redo lsn=0/1C72030
+2026-02-21 14:35:25.522 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 14:35:28.069 EET [678465] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.465 s, sync=0.027 s, total=2.551 s; sync files=3, longest=0.015 s, average=0.008 s; distance=3 kB, estimate=1652 kB; lsn=0/1C72D70, redo lsn=0/1C72D18
+2026-02-21 14:50:25.621 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 14:50:33.797 EET [678465] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.033 s, sync=0.201 s, total=8.416 s; sync files=4, longest=0.194 s, average=0.050 s; distance=2 kB, estimate=1487 kB; lsn=0/1C73740, redo lsn=0/1C736B0
+2026-02-21 14:55:25.988 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 14:55:28.713 EET [678465] LOG:  checkpoint complete: wrote 11 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.480 s, sync=0.040 s, total=2.774 s; sync files=9, longest=0.010 s, average=0.005 s; distance=72 kB, estimate=1346 kB; lsn=0/1C85760, redo lsn=0/1C856D0
+2026-02-21 15:00:25.818 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 15:00:26.388 EET [678465] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.456 s, sync=0.021 s, total=0.574 s; sync files=4, longest=0.009 s, average=0.006 s; distance=2 kB, estimate=1211 kB; lsn=0/1C86310, redo lsn=0/1C862B8
+2026-02-21 15:05:25.493 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 15:05:25.923 EET [678465] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.367 s, sync=0.011 s, total=0.434 s; sync files=4, longest=0.006 s, average=0.003 s; distance=1 kB, estimate=1090 kB; lsn=0/1C86870, redo lsn=0/1C86818
+2026-02-21 16:35:27.326 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 16:35:27.755 EET [678465] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.367 s, sync=0.012 s, total=0.431 s; sync files=4, longest=0.007 s, average=0.003 s; distance=3 kB, estimate=982 kB; lsn=0/1C87698, redo lsn=0/1C87640
+2026-02-21 16:40:27.792 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 16:40:27.966 EET [678465] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.135 s, sync=0.008 s, total=0.177 s; sync files=2, longest=0.005 s, average=0.004 s; distance=4 kB, estimate=884 kB; lsn=0/1C88A30, redo lsn=0/1C889D8
+2026-02-21 16:45:28.064 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 16:45:28.203 EET [678465] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.106 s, sync=0.008 s, total=0.140 s; sync files=2, longest=0.006 s, average=0.004 s; distance=5 kB, estimate=796 kB; lsn=0/1C89E58, redo lsn=0/1C89E00
+2026-02-21 16:50:28.301 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 16:50:28.513 EET [678465] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.148 s, sync=0.009 s, total=0.213 s; sync files=2, longest=0.007 s, average=0.005 s; distance=5 kB, estimate=717 kB; lsn=0/1C8B360, redo lsn=0/1C8B308
+2026-02-21 17:05:28.883 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 17:05:31.011 EET [678465] LOG:  checkpoint complete: wrote 4 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.036 s, sync=0.016 s, total=2.163 s; sync files=5, longest=0.008 s, average=0.004 s; distance=8 kB, estimate=646 kB; lsn=0/1C8D758, redo lsn=0/1C8D700
+2026-02-21 17:10:28.128 EET [678465] LOG:  checkpoint starting: time
+2026-02-21 17:10:28.853 EET [678465] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.588 s, sync=0.014 s, total=0.742 s; sync files=2, longest=0.009 s, average=0.007 s; distance=3 kB, estimate=582 kB; lsn=0/1C8E3B8, redo lsn=0/1C8E360
+2026-02-22 18:30:07.666 EET [678461] LOG:  received smart shutdown request
+2026-02-22 18:30:09.115 EET [678461] LOG:  background worker "logical replication launcher" (PID 678470) exited with exit code 1
+2026-02-22 18:30:09.215 EET [678465] LOG:  shutting down
+2026-02-22 18:30:09.371 EET [678465] LOG:  checkpoint starting: shutdown immediate
+2026-02-22 18:30:12.193 EET [678465] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.237 s, sync=0.012 s, total=2.953 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=523 kB; lsn=0/1C8E468, redo lsn=0/1C8E468
+2026-02-22 18:30:12.299 EET [678461] LOG:  database system is shut down

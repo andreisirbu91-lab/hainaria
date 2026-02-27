@@ -56,7 +56,7 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
         try {
             const res = await api.get(`/tryon/${id}`);
             const session = res.data.session;
-            set({ session, sessionId: id });
+            set({ session, sessionId: id, isLoading: false });
 
             // Auto-polling logic
             if (['BG_REMOVAL_QUEUED', 'TRYON_QUEUED'].includes(session.status)) {
@@ -65,7 +65,11 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
                 if (pollInterval) clearInterval(pollInterval);
             }
         } catch (err) {
-            set({ error: 'Failed to fetch session' });
+            // Session is stale (e.g. DB was reset) — clear and create a new one
+            console.warn('Stale TryOn session, creating new one...');
+            localStorage.removeItem('tryon_session_id');
+            set({ sessionId: null, session: null, error: null, isLoading: false });
+            await get().createSession();
         }
     },
 
