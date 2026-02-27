@@ -13,7 +13,14 @@ export interface AdminRequest extends Request {
 }
 
 export const authenticateAdmin = async (req: AdminRequest, res: Response, next: NextFunction): Promise<any> => {
-    const token = req.cookies.admin_token;
+    // Accept token from cookie OR Authorization Bearer header
+    let token = req.cookies?.admin_token;
+    if (!token) {
+        const authHeader = req.headers.authorization;
+        if (authHeader?.startsWith('Bearer ')) {
+            token = authHeader.split(' ')[1];
+        }
+    }
 
     if (!token) {
         return res.status(401).json({ ok: false, message: 'Unauthorized: No token provided' });

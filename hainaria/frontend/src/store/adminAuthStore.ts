@@ -20,6 +20,12 @@ interface AdminAuthState {
     checkAuth: () => Promise<void>;
 }
 
+// Helper to get admin-specific axios config with Bearer token
+function adminHeaders() {
+    const token = localStorage.getItem('admin_token');
+    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+}
+
 export const useAdminAuthStore = create<AdminAuthState>((set) => ({
     admin: null,
     isLoading: true,
@@ -29,6 +35,7 @@ export const useAdminAuthStore = create<AdminAuthState>((set) => ({
         set({ isLoading: true, error: null });
         try {
             const res = await api.post('/admin/auth/login', { email, password });
+            localStorage.setItem('admin_token', res.data.token);
             set({ admin: res.data.admin, isLoading: false });
         } catch (err: any) {
             set({ error: err.response?.data?.message || 'Login failed', isLoading: false });
@@ -38,19 +45,22 @@ export const useAdminAuthStore = create<AdminAuthState>((set) => ({
 
     logout: async () => {
         try {
-            await api.post('/admin/auth/logout');
+            await api.post('/admin/auth/logout', {}, adminHeaders());
+            localStorage.removeItem('admin_token');
             set({ admin: null });
         } catch (err) {
-            console.error('Logout failed', err);
+            localStorage.removeItem('admin_token');
+            set({ admin: null });
         }
     },
 
     checkAuth: async () => {
         set({ isLoading: true });
         try {
-            const res = await api.get('/admin/auth/me');
+            const res = await api.get('/admin/auth/me', adminHeaders());
             set({ admin: res.data.admin, isLoading: false });
         } catch (err) {
+            localStorage.removeItem('admin_token');
             set({ admin: null, isLoading: false });
         }
     }

@@ -27,13 +27,14 @@ router.post('/login', async (req: Request, res: Response): Promise<any> => {
 
         res.cookie('admin_token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            secure: true,
+            sameSite: 'none',
             maxAge: 8 * 60 * 60 * 1000 // 8 hours
         });
 
         res.json({
             ok: true,
+            token,
             admin: {
                 id: admin.id,
                 email: admin.email,
