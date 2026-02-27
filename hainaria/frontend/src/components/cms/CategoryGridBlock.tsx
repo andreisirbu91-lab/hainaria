@@ -50,10 +50,10 @@ export default function CategoryGridBlock({ content }: CategoryGridBlockProps) {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-hainaria-text/60 via-transparent to-transparent opacity-80" />
                             <div className="absolute bottom-0 left-0 p-8 w-full">
-                                <span className="block text-[10px] font-bold uppercase tracking-[0.3em] text-white/70 mb-2">
+                                <span className="block text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-white/70 mb-2">
                                     Explorează
                                 </span>
-                                <h3 className="text-xl md:text-2xl text-white font-serif italic">
+                                <h3 className="text-lg sm:text-xl md:text-2xl text-white font-serif italic">
                                     {cat.label}
                                 </h3>
                             </div>

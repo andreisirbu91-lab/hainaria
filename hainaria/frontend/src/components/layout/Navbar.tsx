@@ -58,7 +58,7 @@ export default function Navbar() {
     return (
         <nav className="sticky top-0 z-50 bg-hainaria-bg/80 backdrop-blur-lg border-b border-hainaria-border">
             <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-                <div className="flex justify-between items-center h-20">
+                <div className="flex justify-between items-center h-24">
 
                     {/* Logo */}
                     <Link to="/" className="hover:opacity-80 transition-opacity">
@@ -121,20 +121,20 @@ export default function Navbar() {
                     </div>
 
                     {/* Mobile Toggle */}
-                    <div className="flex md:hidden items-center gap-4">
+                    <div className="flex md:hidden items-center gap-5">
                         <Link to="/cart" className="relative text-hainaria-muted">
-                            <ShoppingBag size={20} />
+                            <ShoppingBag size={22} />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 text-[8px] font-bold rounded-full flex items-center justify-center bg-hainaria-accent text-white">
+                                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 text-[9px] font-bold rounded-full flex items-center justify-center bg-hainaria-accent text-white">
                                     {cartCount}
                                 </span>
                             )}
                         </Link>
                         <button
                             onClick={() => setMobileOpen(!mobileOpen)}
-                            className="text-hainaria-text"
+                            className="text-hainaria-text p-1"
                         >
-                            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+                            {mobileOpen ? <X size={28} /> : <Menu size={28} />}
                         </button>
                     </div>
 
@@ -143,20 +143,20 @@ export default function Navbar() {
 
             {/* Mobile menu */}
             {mobileOpen && (
-                <div className="md:hidden bg-hainaria-bg border-b border-hainaria-border px-6 py-10 flex flex-col gap-8 shadow-2xl">
+                <div className="md:hidden bg-hainaria-bg border-b border-hainaria-border px-8 py-10 flex flex-col gap-6 shadow-2xl animate-in slide-in-from-top">
                     {navItems.map((item: any, idx: number) => (
                         <React.Fragment key={idx}>
                             {navLink(item.href, item.label)}
                         </React.Fragment>
                     ))}
                     {user?.role === 'ADMIN' && navLink('/admin', 'Admin Panel')}
-                    <div className="h-[1px] bg-hainaria-border w-12" />
+                    <div className="h-[1px] bg-hainaria-border w-16 my-2" />
                     {user ? (
                         <>
                             {navLink('/dashboard', 'Profil')}
                             <button
                                 onClick={handleLogout}
-                                className="text-[10px] font-bold uppercase tracking-[0.3em] text-left text-hainaria-muted"
+                                className="text-xs font-bold uppercase tracking-[0.2em] text-left text-hainaria-muted py-2"
                             >
                                 Deconectare
                             </button>

@@ -37,21 +37,21 @@ export default function HeroBlock({ content }: HeroBlockProps) {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="max-w-2xl bg-hainaria-bg/85 backdrop-blur-md p-10 md:p-16 rounded-[20px] shadow-2xl border border-hainaria-border"
+                    className="max-w-2xl bg-hainaria-bg/85 backdrop-blur-md p-6 sm:p-10 md:p-16 w-full rounded-[20px] shadow-2xl border border-hainaria-border"
                 >
-                    <h1 className="font-serif text-5xl md:text-7xl mb-6 leading-[1.1] text-hainaria-text italic">
+                    <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl mb-4 md:mb-6 leading-[1.1] text-hainaria-text italic">
                         {slide.title || slide.heading}
                     </h1>
                     <p className="text-hainaria-muted text-lg mb-10 leading-relaxed max-w-md">
                         {slide.subtitle || slide.subheading}
                     </p>
 
-                    <div className="flex flex-wrap gap-4">
-                        <Button href={slide.ctaLink || slide.primaryCtaHref} variant="gold" size="lg" className="min-w-[200px]">
+                    <div className="flex flex-col sm:flex-row gap-4 mt-6 md:mt-0">
+                        <Button href={slide.ctaLink || slide.primaryCtaHref} variant="gold" size="lg" className="w-full sm:w-auto min-w-[200px]">
                             {slide.ctaText || slide.primaryCtaLabel}
                         </Button>
                         {slide.secondaryCtaLabel && (
-                            <Button href={slide.secondaryCtaHref} variant="outline" size="lg" className="min-w-[200px]">
+                            <Button href={slide.secondaryCtaHref} variant="outline" size="lg" className="w-full sm:w-auto min-w-[200px]">
                                 {slide.secondaryCtaLabel}
                             </Button>
                         )}

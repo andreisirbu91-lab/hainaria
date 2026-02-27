@@ -9,6 +9,8 @@ import ProductPage from './pages/ProductPage';
 import Cart from './pages/Cart';
 import StudioPage from './pages/studio/StudioPage';
 import StaticPage from './pages/StaticPage';
+import About from './pages/About';
+import Privacy from './pages/Privacy';
 import AdminLayout from './pages/admin/AdminLayout';
 import LoginPage from './pages/admin/LoginPage';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -35,6 +37,8 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/studio" element={<StudioPage />} />
+            <Route path="/despre-noi" element={<About />} />
+            <Route path="/politica-de-confidentialitate" element={<Privacy />} />
             <Route path="/p/:slug" element={<StaticPage />} />
 
             {/* Admin Routes */}

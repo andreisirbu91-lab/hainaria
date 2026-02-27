@@ -8,14 +8,14 @@ interface LogoProps {
 
 export default function Logo({ size = 'md', showText = true, className = '' }: LogoProps) {
     const sizes = {
-        sm: { imgH: 28, fontSize: '13px', spacing: '0.18em' },
-        md: { imgH: 34, fontSize: '16px', spacing: '0.2em' },
-        lg: { imgH: 44, fontSize: '20px', spacing: '0.22em' },
+        sm: { imgH: 40, fontSize: '16px', spacing: '0.2em' },
+        md: { imgH: 48, fontSize: '18px', spacing: '0.22em' },
+        lg: { imgH: 56, fontSize: '22px', spacing: '0.25em' },
     };
     const s = sizes[size];
 
     return (
-        <div className={`flex items-center gap-2.5 ${className}`}>
+        <div className={`flex items-center gap-3 ${className}`}>
             <img
                 src="/logo-hn.png"
                 alt="HN"

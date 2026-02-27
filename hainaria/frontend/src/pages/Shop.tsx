@@ -123,21 +123,21 @@ export default function Shop() {
                                 <span className="text-xs font-bold uppercase tracking-widest">Filtre</span>
                             </div>
 
-                            <div className="space-y-10">
+                            <div className="space-y-8 lg:space-y-10">
                                 <section>
-                                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-hainaria-muted mb-6">Categorii</h3>
-                                    <ul className="space-y-3">
+                                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-hainaria-muted mb-4 lg:mb-6">Categorii</h3>
+                                    <ul className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible gap-2 lg:gap-0 lg:space-y-3 pb-4 lg:pb-0 hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
                                         {CATEGORIES.map(cat => (
-                                            <li key={cat.id}>
+                                            <li key={cat.id} className="flex-shrink-0">
                                                 <button
                                                     onClick={() => handleCategory(cat.id)}
-                                                    className={`text-sm transition-all duration-300 flex items-center justify-between w-full group ${activeCategory === cat.id
-                                                        ? 'text-hainaria-text font-bold translate-x-1'
-                                                        : 'text-hainaria-muted hover:text-hainaria-accent hover:translate-x-1'
+                                                    className={`text-[13px] lg:text-sm transition-all duration-300 flex items-center justify-between group px-4 py-2 lg:px-0 lg:py-0 border lg:border-transparent rounded-full lg:rounded-none w-full ${activeCategory === cat.id
+                                                        ? 'bg-hainaria-accent text-white lg:bg-transparent lg:text-hainaria-text border-hainaria-accent font-bold lg:translate-x-1'
+                                                        : 'bg-white lg:bg-transparent text-hainaria-muted border-hainaria-border hover:border-hainaria-accent hover:text-hainaria-accent lg:hover:translate-x-1'
                                                         }`}
                                                 >
                                                     {cat.label}
-                                                    {activeCategory === cat.id && <div className="w-1.5 h-1.5 rounded-full bg-hainaria-gold" />}
+                                                    {activeCategory === cat.id && <div className="hidden lg:block w-1.5 h-1.5 rounded-full bg-hainaria-gold" />}
                                                 </button>
                                             </li>
                                         ))}
@@ -145,10 +145,10 @@ export default function Shop() {
                                 </section>
 
                                 <section>
-                                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-hainaria-muted mb-6">Condiție</h3>
-                                    <div className="flex flex-wrap gap-2">
+                                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-hainaria-muted mb-4 lg:mb-6">Condiție</h3>
+                                    <div className="flex flex-row lg:flex-wrap overflow-x-auto lg:overflow-visible gap-2 pb-4 lg:pb-0 hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
                                         {['Toate', 'Nou', 'Pre-loved'].map(c => (
-                                            <button key={c} className="px-3 py-1.5 border border-hainaria-border rounded-full text-[10px] uppercase tracking-widest hover:bg-hainaria-surface transition-colors">
+                                            <button key={c} className="flex-shrink-0 px-4 py-2 text-[10px] uppercase font-bold tracking-widest border border-hainaria-border rounded-full hover:border-hainaria-accent hover:text-hainaria-accent transition-colors bg-white lg:bg-transparent">
                                                 {c}
                                             </button>
                                         ))}

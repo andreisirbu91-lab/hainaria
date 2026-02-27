@@ -4,6 +4,8 @@ import { PrismaClient } from '@prisma/client';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import Replicate from 'replicate';
+import axios from 'axios';
 
 const prisma = new PrismaClient();
 
@@ -24,6 +26,10 @@ export const bgRemoveWorker = new Worker(
                 data: { status: 'BG_REMOVAL_QUEUED' }
             });
 
+            const replicate = new Replicate({
+                auth: process.env.REPLICATE_API_TOKEN,
+            });
+
             // 1. Resolve input path from disk
             const inputPath = path.join(process.cwd(), imageUrl);
             if (!fs.existsSync(inputPath)) {
@@ -36,22 +42,35 @@ export const bgRemoveWorker = new Worker(
             if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
             const outputPath = path.join(uploadDir, filename);
 
-            // 3. Call Python rembg script directly
-            const pythonBin = fs.existsSync('/opt/venv/bin/python3')
-                ? '/opt/venv/bin/python3'
-                : 'python3';
-            const scriptPath = path.join(process.cwd(), 'py/remove_bg.py');
+            console.log(`[BG_REMOVE] Sending image to Replicate (lucataco/remove-bg)...`);
 
-            console.log(`[BG_REMOVE] Running: ${pythonBin} ${scriptPath} ${inputPath} ${outputPath}`);
-            const result = execSync(`${pythonBin} "${scriptPath}" "${inputPath}" "${outputPath}"`, {
-                timeout: 120000, // 2 minutes max
-                encoding: 'utf-8'
+            // Read file as base64 to send to Replicate
+            const ext = path.extname(inputPath).toLowerCase();
+            const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+            const base64Data = fs.readFileSync(inputPath, { encoding: 'base64' });
+            const dataUri = `data:${mimeType};base64,${base64Data}`;
+
+            const prediction = await replicate.predictions.create({
+                version: "af8a920215b248a395c6c039750bde5b66d483ded0caeb3ce0f1ceab6d141e6e", // af8a9202... is lucataco/remove-bg
+                input: {
+                    image: dataUri
+                }
             });
-            console.log(`[BG_REMOVE] Python output: ${result}`);
 
-            if (!fs.existsSync(outputPath)) {
-                throw new Error('Python script ran but output file was not created');
+            const result = await replicate.wait(prediction);
+
+            if (result.status !== 'succeeded' || !result.output) {
+                throw new Error(`Replicate bg-remove failed: ${result.error || 'No output'}`);
             }
+
+            const outputUrl = result.output;
+            console.log(`[BG_REMOVE] Got result from Replicate: ${outputUrl}`);
+
+            // Download the result back to our local disk
+            const response = await axios.get(outputUrl, { responseType: 'arraybuffer' });
+            fs.writeFileSync(outputPath, response.data);
+
+            console.log(`[BG_REMOVE] Saved cutout to ${outputPath}`);
 
             const cutoutUrl = `/uploads/tryon/${filename}`;
 
