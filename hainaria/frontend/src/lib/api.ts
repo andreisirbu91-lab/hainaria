@@ -6,9 +6,13 @@ const api = axios.create({
     timeout: 120000, // 120 secunde
 });
 
-// Auto-attach JWT
+// Auto-attach JWT (admin or regular user)
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('hainaria_token');
+    const isAdminRoute = config.url?.includes('/admin/');
+    const token = isAdminRoute
+        ? localStorage.getItem('admin_token')
+        : localStorage.getItem('hainaria_token');
+
     if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
     }
