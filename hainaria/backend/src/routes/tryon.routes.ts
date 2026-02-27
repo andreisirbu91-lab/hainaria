@@ -43,7 +43,7 @@ router.post('/:id/upload', optionalAuth, upload.single('image'), async (req: Aut
     if (!req.file) return res.status(400).json({ ok: false, message: 'No image uploaded' });
 
     const session = await prisma.tryOnSession.findUnique({ where: { id } });
-    if (!session || session.userId !== req.user!.userId) return res.status(404).json({ ok: false, message: 'Session not found' });
+    if (!session) return res.status(404).json({ ok: false, message: 'Session not found' });
 
     // Store asset
     const assetUrl = `/uploads/raw/${req.file.filename}`;

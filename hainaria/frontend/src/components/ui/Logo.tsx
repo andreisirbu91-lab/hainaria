@@ -8,29 +8,32 @@ interface LogoProps {
 
 export default function Logo({ size = 'md', showText = true, className = '' }: LogoProps) {
     const sizes = {
-        sm: { imgH: 50, fontSize: '18px', spacing: '0.2em' },
-        md: { imgH: 80, fontSize: '24px', spacing: '0.22em' },
-        lg: { imgH: 120, fontSize: '32px', spacing: '0.25em' },
+        sm: {
+            imgClass: 'h-[32px] md:h-[50px]',
+            textClass: 'text-[16px] md:text-[18px] tracking-[0.2em]'
+        },
+        md: {
+            imgClass: 'h-[40px] md:h-[80px]',
+            textClass: 'text-[18px] md:text-[24px] tracking-[0.22em]'
+        },
+        lg: {
+            imgClass: 'h-[48px] md:h-[120px]',
+            textClass: 'text-[22px] md:text-[32px] tracking-[0.25em]'
+        },
     };
     const s = sizes[size];
 
     return (
         <div className={`flex items-center gap-3 ${className}`}>
             <img
-                src="/logo-hn.png?v=3"
+                src="/logo-hn.png?v=4"
                 alt="HN"
-                style={{ height: s.imgH, width: 'auto' }}
-                className="object-contain"
+                className={`object-contain ${s.imgClass}`}
             />
             {showText && (
                 <span
-                    className="text-hainaria-text"
-                    style={{
-                        fontFamily: "'Bookman Old Style', 'Libre Baskerville', 'Playfair Display', Georgia, serif",
-                        fontSize: s.fontSize,
-                        fontWeight: 400,
-                        letterSpacing: s.spacing,
-                    }}
+                    className={`text-hainaria-text transition-all duration-300 ${s.textClass}`}
+                    style={{ fontFamily: "'Bookman Old Style', 'Libre Baskerville', 'Playfair Display', Georgia, serif", fontWeight: 400 }}
                 >
                     Hainaria
                 </span>

@@ -10,4 +10,4 @@ cmds = ["npm ci", "python -m venv /opt/venv", ". /opt/venv/bin/activate && pip i
 cmds = ["npx prisma generate", "npm run build"]
 
 [start]
-cmd = ". /opt/venv/bin/activate && redis-server --daemonize yes && npx prisma db push --force-reset && npm run db:seed && npm run start"
+cmd = ". /opt/venv/bin/activate && redis-server --daemonize yes && npx prisma db push --accept-data-loss && npm run start"
