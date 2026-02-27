@@ -31,6 +31,20 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
 
 // 1. Create Session
 router.post('/session', optionalAuth, async (req: AuthRequest, res: Response): Promise<any> => {
+    // Ensure demo_user_id exists to prevent P2003 Foreign Key constraint violations
+    if (req.user?.userId === 'demo_user_id') {
+        const demoExists = await prisma.user.findUnique({ where: { id: 'demo_user_id' } });
+        if (!demoExists) {
+            await prisma.user.create({
+                data: {
+                    id: 'demo_user_id',
+                    email: 'demo@hainaria.com',
+                    passwordHash: 'demopass',
+                }
+            });
+        }
+    }
+
     const session = await prisma.tryOnSession.create({
         data: { userId: req.user!.userId }
     });
