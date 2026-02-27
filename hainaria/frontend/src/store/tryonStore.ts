@@ -21,7 +21,7 @@ interface TryOnStore {
     selectedProduct: any | null;
 
     createSession: () => Promise<void>;
-    fetchSession: (id: string) => Promise<void>;
+    fetchSession: (id: string, isRetry?: boolean) => Promise<void>;
     pollSession: (id: string) => void;
 
     uploadImage: (file: File) => Promise<void>;
@@ -46,13 +46,13 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
             const res = await api.post('/tryon/session');
             localStorage.setItem('tryon_session_id', res.data.sessionId);
             set({ sessionId: res.data.sessionId, isLoading: false });
-            await get().fetchSession(res.data.sessionId);
+            await get().fetchSession(res.data.sessionId, true);
         } catch (err) {
             set({ error: 'Failed to create session', isLoading: false });
         }
     },
 
-    fetchSession: async (id: string) => {
+    fetchSession: async (id: string, isRetry = false) => {
         try {
             const res = await api.get(`/tryon/${id}`);
             const session = res.data.session;
@@ -70,7 +70,7 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
                 session.currentResultUrl = `${backendBase}${session.currentResultUrl}`;
             }
 
-            set({ session, sessionId: id, isLoading: false });
+            set({ session, sessionId: id, isLoading: false, error: null });
 
             // Auto-polling logic
             if (['BG_REMOVAL_QUEUED', 'TRYON_QUEUED'].includes(session.status)) {
@@ -78,12 +78,18 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
             } else {
                 if (pollInterval) clearInterval(pollInterval);
             }
-        } catch (err) {
-            // Session is stale (e.g. DB was reset) — clear and create a new one
-            console.warn('Stale TryOn session, creating new one...');
-            localStorage.removeItem('tryon_session_id');
-            set({ sessionId: null, session: null, error: null, isLoading: false });
-            await get().createSession();
+        } catch (err: any) {
+            console.warn('Stale TryOn session or fetch error:', err.message);
+            if (pollInterval) clearInterval(pollInterval);
+
+            if (!isRetry) {
+                console.log('Attempting to create a new session...');
+                localStorage.removeItem('tryon_session_id');
+                await get().createSession();
+            } else {
+                console.error('Failed to create and fetch a new session. Stopping loop.');
+                set({ sessionId: null, session: null, error: 'A apărut o problemă de conexiune cu serverul. Te rugăm să reîncarci pagina.', isLoading: false });
+            }
         }
     },
 

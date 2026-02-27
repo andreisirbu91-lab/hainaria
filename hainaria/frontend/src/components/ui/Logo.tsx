@@ -8,9 +8,9 @@ interface LogoProps {
 
 export default function Logo({ size = 'md', showText = true, className = '' }: LogoProps) {
     const sizes = {
-        sm: { imgH: 40, fontSize: '16px', spacing: '0.2em' },
-        md: { imgH: 48, fontSize: '18px', spacing: '0.22em' },
-        lg: { imgH: 56, fontSize: '22px', spacing: '0.25em' },
+        sm: { imgH: 50, fontSize: '18px', spacing: '0.2em' },
+        md: { imgH: 80, fontSize: '24px', spacing: '0.22em' },
+        lg: { imgH: 120, fontSize: '32px', spacing: '0.25em' },
     };
     const s = sizes[size];
 
