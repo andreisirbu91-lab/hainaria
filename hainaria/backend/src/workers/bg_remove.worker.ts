@@ -1,13 +1,11 @@
 import { Worker, Job } from 'bullmq';
 import { redisConnection } from '../queues/connection';
 import { PrismaClient } from '@prisma/client';
-import axios from 'axios';
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import FormData from 'form-data';
 
 const prisma = new PrismaClient();
-const REMOVEBG_SERVICE_URL = process.env.REMOVEBG_SERVICE_URL || 'http://localhost:8000';
 
 export const bgRemoveWorker = new Worker(
     'TryOnQueue',
@@ -23,29 +21,37 @@ export const bgRemoveWorker = new Worker(
             // Update session status
             await prisma.tryOnSession.update({
                 where: { id: sessionId },
-                data: { status: 'BG_REMOVAL_QUEUED' } // In case it wasn't already
+                data: { status: 'BG_REMOVAL_QUEUED' }
             });
 
-            // 1. Download original image
-            const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-            const buffer = Buffer.from(response.data);
+            // 1. Resolve input path from disk
+            const inputPath = path.join(process.cwd(), imageUrl);
+            if (!fs.existsSync(inputPath)) {
+                throw new Error(`Image file not found at ${inputPath}`);
+            }
 
-            // 2. Call Python Service
-            const formData = new FormData();
-            formData.append('file', buffer, { filename: 'input.png', contentType: 'image/png' });
-
-            const bgRes = await axios.post(`${REMOVEBG_SERVICE_URL}/removebg`, formData, {
-                headers: formData.getHeaders(),
-                responseType: 'arraybuffer'
-            });
-
-            // 3. Save processed image locally (or S3/MinIO)
+            // 2. Prepare output path
             const filename = `cutout-${Date.now()}.png`;
             const uploadDir = path.join(process.cwd(), 'uploads/tryon');
             if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+            const outputPath = path.join(uploadDir, filename);
 
-            const targetPath = path.join(uploadDir, filename);
-            fs.writeFileSync(targetPath, Buffer.from(bgRes.data));
+            // 3. Call Python rembg script directly
+            const pythonBin = fs.existsSync('/opt/venv/bin/python3')
+                ? '/opt/venv/bin/python3'
+                : 'python3';
+            const scriptPath = path.join(process.cwd(), 'py/remove_bg.py');
+
+            console.log(`[BG_REMOVE] Running: ${pythonBin} ${scriptPath} ${inputPath} ${outputPath}`);
+            const result = execSync(`${pythonBin} "${scriptPath}" "${inputPath}" "${outputPath}"`, {
+                timeout: 120000, // 2 minutes max
+                encoding: 'utf-8'
+            });
+            console.log(`[BG_REMOVE] Python output: ${result}`);
+
+            if (!fs.existsSync(outputPath)) {
+                throw new Error('Python script ran but output file was not created');
+            }
 
             const cutoutUrl = `/uploads/tryon/${filename}`;
 
@@ -65,8 +71,8 @@ export const bgRemoveWorker = new Worker(
                         currentResultUrl: cutoutUrl
                     }
                 }),
-                prisma.tryOnJob.update({
-                    where: { id: job.id as string },
+                prisma.tryOnJob.updateMany({
+                    where: { sessionId, type: 'BG_REMOVAL', status: 'PENDING' },
                     data: { status: 'COMPLETED', result: { url: cutoutUrl } }
                 })
             ]);

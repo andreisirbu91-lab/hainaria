@@ -56,6 +56,16 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
         try {
             const res = await api.get(`/tryon/${id}`);
             const session = res.data.session;
+
+            // Resolve relative asset URLs to the backend base URL
+            const backendBase = (import.meta.env.VITE_API_URL || '/api').replace('/api', '');
+            if (session.assets) {
+                session.assets = session.assets.map((a: any) => ({
+                    ...a,
+                    url: a.url.startsWith('http') ? a.url : `${backendBase}${a.url}`
+                }));
+            }
+
             set({ session, sessionId: id, isLoading: false });
 
             // Auto-polling logic
