@@ -15,8 +15,8 @@ export default function Step3Selection() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await api.get('/products');
-                setProducts(res.data.products);
+                const res = await api.get('/public/products');
+                setProducts(res.data.products || []);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -26,7 +26,7 @@ export default function Step3Selection() {
         fetchProducts();
     }, []);
 
-    const filtered = products.filter(p => p.title.toLowerCase().includes(search.toLowerCase()));
+    const filtered = (products || []).filter(p => p.title?.toLowerCase().includes(search.toLowerCase()));
 
     return (
         <div className="flex flex-col lg:flex-row gap-12">
@@ -59,7 +59,7 @@ export default function Step3Selection() {
                             className="group cursor-pointer space-y-3"
                         >
                             <div className="aspect-[3/4] bg-[#F9FAFB] rounded-2xl overflow-hidden border border-transparent group-hover:border-black transition-all relative">
-                                <img src={product.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.title} />
+                                <img src={product.images?.[0]?.url || product.imageUrl || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={product.title} />
                                 <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform bg-gradient-to-t from-black/60 to-transparent">
                                     <button className="w-full bg-white text-black py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
                                         <Sparkles size={12} /> Probă AI

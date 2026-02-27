@@ -19,7 +19,7 @@ export default function Step2Background() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div className="aspect-[4/5] bg-gray-100 rounded-[2.5rem] overflow-hidden border shadow-2xl relative group">
-                    {rawImage && <img src={rawImage} className="w-full h-full object-cover" alt="Original" />}
+                    {rawImage && <img src={rawImage} className="w-full h-full object-contain" alt="Original" />}
 
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
 

@@ -71,8 +71,9 @@ router.post('/:id/bg-remove', optionalAuth, async (req: AuthRequest, res: Respon
         include: { assets: true }
     });
 
-    if (!session || session.status !== TryOnStatus.UPLOADED) {
-        return res.status(400).json({ ok: false, message: 'Invalid state for BG removal' });
+    const allowedStates = [TryOnStatus.UPLOADED, 'FAILED', TryOnStatus.BG_REMOVAL_QUEUED] as string[];
+    if (!session || !allowedStates.includes(session.status)) {
+        return res.status(400).json({ ok: false, message: `Invalid state for BG removal: ${session?.status}` });
     }
 
     const rawAsset = (session as any).assets.find((a: any) => a.type === 'RAW');
