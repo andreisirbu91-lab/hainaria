@@ -62,7 +62,7 @@ export default function Navbar() {
 
                     {/* Logo */}
                     <Link to="/" className="hover:opacity-80 transition-opacity">
-                        <Logo size="sm" />
+                        <Logo size="lg" />
                     </Link>
 
                     {/* Desktop nav */}
