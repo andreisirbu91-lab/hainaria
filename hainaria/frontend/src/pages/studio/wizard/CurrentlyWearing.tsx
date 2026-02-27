@@ -37,7 +37,7 @@ export default function CurrentlyWearing() {
                     {resultImage && (
                         <div className="absolute top-4 left-4">
                             <span className="px-2 py-1 bg-black text-white text-[8px] font-black uppercase tracking-widest rounded-lg flex items-center gap-1">
-                                <span className="w-1 h-1 bg-green-500 rounded-full animate-ping" /> GENERAȚIE AI
+                                <span className="w-1 h-1 bg-green-500 rounded-full animate-ping" /> GENERAT CU AI
                             </span>
                         </div>
                     )}
@@ -45,7 +45,7 @@ export default function CurrentlyWearing() {
 
                 {/* Items List */}
                 <div className="space-y-4">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Haine Probante</p>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Haine Probate</p>
 
                     {session?.status === 'TRYON_DONE' ? (
                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl relative group">

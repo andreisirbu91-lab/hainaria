@@ -65,6 +65,10 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
                     url: a.url.startsWith('http') ? a.url : `${backendBase}${a.url}`
                 }));
             }
+            // Also resolve currentResultUrl
+            if (session.currentResultUrl && !session.currentResultUrl.startsWith('http')) {
+                session.currentResultUrl = `${backendBase}${session.currentResultUrl}`;
+            }
 
             set({ session, sessionId: id, isLoading: false });
 

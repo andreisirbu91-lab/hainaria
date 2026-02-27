@@ -95,7 +95,7 @@ export default function Shop() {
                                 Explorează Colecția
                             </h1>
                             <p className="mt-6 text-hainaria-muted text-sm leading-relaxed font-sans">
-                                O selecție curatoriată de piese premium, verificate manual pentru a garanta calitatea și autenticitatea. Sustenabilitatea întâlnește eleganța atemporală.
+                                O selecție de piese premium, verificate manual pentru a garanta calitatea și autenticitatea. Sustenabilitatea întâlnește eleganța atemporală.
                             </p>
                         </div>
                         <div className="flex items-center gap-4">

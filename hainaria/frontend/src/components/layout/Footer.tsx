@@ -63,7 +63,7 @@ export default function Footer() {
                             <Logo size="lg" />
                         </Link>
                         <p className="text-hainaria-muted text-sm leading-relaxed max-w-sm mb-10">
-                            Curatorii tăi de modă sustenabilă. Descoperă piese unice, verificate și pregătite pentru o nouă viață. Eleganță fără compromisuri.
+                            Descoperă piese unice, verificate și pregătite pentru o nouă viață. Modă sustenabilă, eleganță fără compromisuri.
                         </p>
                         <div className="flex items-center gap-4 text-hainaria-text/60">
                             {settings?.instagramUrl && <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:text-hainaria-accent transition-colors"><Instagram size={20} /></a>}
