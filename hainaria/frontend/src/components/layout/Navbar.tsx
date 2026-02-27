@@ -58,7 +58,7 @@ export default function Navbar() {
     return (
         <nav className="sticky top-0 z-50 bg-hainaria-bg/80 backdrop-blur-lg border-b border-hainaria-border">
             <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-                <div className="flex justify-between items-center h-24">
+                <div className="flex justify-between items-center h-36 md:h-32">
 
                     {/* Logo */}
                     <Link to="/" className="hover:opacity-80 transition-opacity">

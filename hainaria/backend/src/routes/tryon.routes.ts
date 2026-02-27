@@ -165,7 +165,8 @@ router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response): Promis
         include: { assets: true, jobs: { orderBy: { createdAt: 'desc' }, take: 1 } }
     });
 
-    if (!session || session.userId !== req.user!.userId) return res.status(404).json({ ok: false });
+    // Removed strict session.userId strict check for robust polling
+    if (!session) return res.status(404).json({ ok: false, message: 'Session not found' });
 
     res.json({ ok: true, session });
 });

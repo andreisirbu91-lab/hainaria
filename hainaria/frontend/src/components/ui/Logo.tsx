@@ -17,7 +17,7 @@ export default function Logo({ size = 'md', showText = true, className = '' }: L
     return (
         <div className={`flex items-center gap-3 ${className}`}>
             <img
-                src="/logo-hn.png"
+                src="/logo-hn.png?v=3"
                 alt="HN"
                 style={{ height: s.imgH, width: 'auto' }}
                 className="object-contain"

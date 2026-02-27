@@ -123,9 +123,10 @@ export const useTryOnStore = create<TryOnStore>((set, get) => ({
         try {
             await api.post(`/tryon/${id}/bg-remove`);
             await get().fetchSession(id);
-        } catch (err) {
-            set({ error: 'BG Removal failed', isLoading: false });
-            throw err; // Re-throw so UI can catch it
+        } catch (err: any) {
+            const errorMsg = err?.response?.data?.message || 'Decuparea fundalului a eșuat. Te rugăm să încerci din nou.';
+            set({ error: errorMsg, isLoading: false });
+            throw new Error(errorMsg);
         }
     },
 

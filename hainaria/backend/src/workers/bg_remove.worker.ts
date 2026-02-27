@@ -27,7 +27,7 @@ export const bgRemoveWorker = new Worker(
             });
 
             const replicate = new Replicate({
-                auth: process.env.REPLICATE_API_TOKEN,
+                auth: process.env.REPLICATE_API_KEY || process.env.REPLICATE_TOKEN || process.env.REPLICATE_API_TOKEN,
             });
 
             // 1. Resolve input path from disk
