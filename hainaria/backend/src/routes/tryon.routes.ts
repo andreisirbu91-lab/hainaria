@@ -31,24 +31,40 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
 
 // 1. Create Session
 router.post('/session', optionalAuth, async (req: AuthRequest, res: Response): Promise<any> => {
-    // Ensure demo_user_id exists to prevent P2003 Foreign Key constraint violations
-    if (req.user?.userId === 'demo_user_id') {
-        const demoExists = await prisma.user.findUnique({ where: { id: 'demo_user_id' } });
-        if (!demoExists) {
-            await prisma.user.create({
-                data: {
-                    id: 'demo_user_id',
-                    email: 'demo@hainaria.com',
-                    passwordHash: 'demopass',
-                }
-            });
-        }
-    }
+    try {
+        let finalUserId = req.user?.userId || 'demo_user_id';
 
-    const session = await prisma.tryOnSession.create({
-        data: { userId: req.user!.userId }
-    });
-    res.json({ ok: true, sessionId: session.id });
+        // If it's a real user from JWT, make sure they actually still exist in the database.
+        // If the DB was wiped, their token is still present but the ID is gone, causing P2003.
+        if (finalUserId !== 'demo_user_id') {
+            const realUserExists = await prisma.user.findUnique({ where: { id: finalUserId } });
+            if (!realUserExists) {
+                finalUserId = 'demo_user_id';
+            }
+        }
+
+        // Ensure demo_user_id exists to prevent P2003 Foreign Key constraint violations
+        if (finalUserId === 'demo_user_id') {
+            const demoExists = await prisma.user.findUnique({ where: { id: 'demo_user_id' } });
+            if (!demoExists) {
+                await prisma.user.create({
+                    data: {
+                        id: 'demo_user_id',
+                        email: 'demo@hainaria.com',
+                        passwordHash: 'demopass',
+                    }
+                });
+            }
+        }
+
+        const session = await prisma.tryOnSession.create({
+            data: { userId: finalUserId }
+        });
+        res.json({ ok: true, sessionId: session.id });
+    } catch (err) {
+        console.error('[TryOn] Failed to create session:', err);
+        res.status(500).json({ ok: false, message: 'Internal server error during session creation' });
+    }
 });
 
 // 2. Upload Image
