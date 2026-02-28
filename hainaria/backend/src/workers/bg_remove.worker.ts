@@ -42,7 +42,7 @@ export const bgRemoveWorker = new Worker(
             if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
             const outputPath = path.join(uploadDir, filename);
 
-            console.log(`[BG_REMOVE] Sending image to Replicate (lucataco/remove-bg)...`);
+            console.log(`[BG_REMOVE] Sending image to Replicate via SDK (cjwbw/rembg)...`);
 
             // Read file as base64 to send to Replicate
             const ext = path.extname(inputPath).toLowerCase();
@@ -50,20 +50,24 @@ export const bgRemoveWorker = new Worker(
             const base64Data = fs.readFileSync(inputPath, { encoding: 'base64' });
             const dataUri = `data:${mimeType};base64,${base64Data}`;
 
-            const prediction = await replicate.predictions.create({
-                version: "af8a920215b248a395c6c039750bde5b66d483ded0caeb3ce0f1ceab6d141e6e", // af8a9202... is lucataco/remove-bg
-                input: {
-                    image: dataUri
+            const repToken = process.env.REPLICATE_API_KEY || process.env.REPLICATE_TOKEN || process.env.REPLICATE_API_TOKEN;
+            const replicate = new Replicate({ auth: repToken });
+
+            const output = await replicate.run(
+                "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4ceb37fe8baf34a706599723",
+                {
+                    input: {
+                        image: dataUri,
+                    }
                 }
-            });
+            );
 
-            const result = await replicate.wait(prediction);
-
-            if (result.status !== 'succeeded' || !result.output) {
-                throw new Error(`Replicate bg-remove failed: ${result.error || 'No output'}`);
+            if (!output) {
+                throw new Error("Replicate bg-remove failed: No output returned");
             }
 
-            const outputUrl = result.output;
+            // Replicate sometimes returns arrays of strings depending on the model
+            const outputUrl = Array.isArray(output) ? output[0] : String(output);
             console.log(`[BG_REMOVE] Got result from Replicate: ${outputUrl}`);
 
             // Download the result back to our local disk
